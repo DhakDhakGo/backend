@@ -1,0 +1,25 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+# Project Configuration
+project_id = "dhakdhakgo"
+region     = "asia-south1"
+zone       = "asia-south1-a"
+environment = "dev"
+
+# Service Configuration
+services = ["post-service", "ai-service", "interaction-service"]
+
+# Cloud Run Configuration
+cloud_run_config = {
+  memory        = "512Mi"
+  cpu           = "1"
+  min_instances = 0
+  max_instances = 10
+  timeout       = "300s"
+}
+
+# Firebase Configuration
+firebase_config = {
+  project_id = "dhakdhakgo"
+  region     = "asia-south1"
+}
