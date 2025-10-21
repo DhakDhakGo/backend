@@ -171,7 +171,8 @@ const deleteComment = async (req, res, next) => {
 
 module.exports = {
   createComment,
-  getCommentsByTarget,
+  getCommentsForPost: getCommentsByTarget,  // Alias for routes compatibility
+  getCommentsByTarget,                       // Keep original name
   getCommentsByUser,
   getCommentById,
   getCommentReplies,
