@@ -117,14 +117,15 @@ Type `yes` to confirm.
 
 ```
 infrastructure/terraform/
-├── main.tf              # Provider configuration
-├── variables.tf         # Variable declarations
-├── terraform.tfvars     # Variable values (gitignored)
-├── services.tf          # Cloud Run services
-├── firebase.tf          # Firebase & Firestore
-├── outputs.tf           # Output values
+├── main.tf                   # Provider configuration
+├── variables.tf              # Variable declarations
+├── terraform.tfvars          # Variable values (gitignored)
+├── services.tf               # Cloud Run services
+├── firebase.tf               # Firebase & Firestore & Service Accounts
+├── outputs.tf                # Output values
 ├── terraform.tfvars.example  # Example variables
-├── README.md           # This file
+├── README.md                 # This file (usage guide)
+├── TERRAFORM_EXPLAINED.md    # How Terraform works (tutorial)
 ├── FIREBASE_MANUAL_SETUP.md  # Firebase setup guide
 └── SECRETS_VIA_GITHUB.md     # Secrets management guide
 ```
@@ -455,4 +456,14 @@ Expected: `{"status": "healthy", "service": "xxx-service", ...}`
 
 ---
 
-**Need help?** See main documentation in `../../docs/`
+## 📚 Documentation
+
+- **[TERRAFORM_EXPLAINED.md](./TERRAFORM_EXPLAINED.md)** - 🎓 How Terraform works (tutorial with examples)
+- **[FIREBASE_MANUAL_SETUP.md](./FIREBASE_MANUAL_SETUP.md)** - Firebase enablement guide
+- **[SECRETS_VIA_GITHUB.md](./SECRETS_VIA_GITHUB.md)** - Secrets management strategy
+- **[Infrastructure Overview](../../docs/04-INFRASTRUCTURE.md)** - High-level architecture
+- **[Main Documentation](../../docs/)** - Complete project docs
+
+---
+
+**New to Terraform?** Start with [TERRAFORM_EXPLAINED.md](./TERRAFORM_EXPLAINED.md)! 🎓

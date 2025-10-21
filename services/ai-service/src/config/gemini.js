@@ -13,10 +13,10 @@ const modelConfig = {
 
 /**
  * Get Gemini model instance
- * @param {string} modelName - Model name (default: gemini-pro)
+ * @param {string} modelName - Model name (default: gemini-2.5-flash)
  * @returns {Object} Gemini model instance
  */
-const getModel = (modelName = "gemini-pro") => {
+const getModel = (modelName = "gemini-2.5-flash") => {
   return genAI.getGenerativeModel({ 
     model: modelName,
     generationConfig: modelConfig
@@ -26,10 +26,10 @@ const getModel = (modelName = "gemini-pro") => {
 /**
  * Generate content with Gemini
  * @param {string} prompt - The prompt to send to Gemini
- * @param {string} modelName - Model name (default: gemini-pro)
+ * @param {string} modelName - Model name (default: gemini-2.5-flash)
  * @returns {Promise<string>} Generated text
  */
-const generateContent = async (prompt, modelName = "gemini-pro") => {
+const generateContent = async (prompt, modelName = "gemini-2.5-flash") => {
   try {
     const model = getModel(modelName);
     const result = await model.generateContent(prompt);

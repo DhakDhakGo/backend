@@ -7,6 +7,8 @@ This repository uses GitHub Actions for automated CI/CD. Each service has its ow
 2. Pushes the image to Google Container Registry (GCR)
 3. Deploys to Google Cloud Run
 
+**🎓 New to GitHub Actions?** See [GITHUB_ACTIONS_EXPLAINED.md](./GITHUB_ACTIONS_EXPLAINED.md) for a detailed tutorial using your actual workflows!
+
 ---
 
 ## 🔑 Required GitHub Secrets
@@ -23,33 +25,27 @@ Your Google Cloud Project ID
 ### **2. GCP_SA_KEY**
 Service Account Key JSON for GitHub Actions to authenticate with GCP
 
-#### **How to Create:**
+**✅ Service account already created by Terraform!**
+- Email: `github-actions@dhakdhakgo-472515.iam.gserviceaccount.com`
+- Permissions: All required roles assigned ✅
+
+#### **How to Get the Key:**
+
+The service account exists, you just need to create a key:
 
 ```bash
-# 1. Create service account
-gcloud iam service-accounts create github-actions \
-  --display-name="GitHub Actions CI/CD"
-
-# 2. Grant necessary permissions
-gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member="serviceAccount:github-actions@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
-  --role="roles/run.admin"
-
-gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member="serviceAccount:github-actions@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
-  --role="roles/storage.admin"
-
-gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member="serviceAccount:github-actions@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
-  --role="roles/iam.serviceAccountUser"
-
-# 3. Create and download key
+# Create key (Terraform provides this command)
 gcloud iam service-accounts keys create github-actions-key.json \
-  --iam-account=github-actions@YOUR_PROJECT_ID.iam.gserviceaccount.com
+  --iam-account=github-actions@dhakdhakgo-472515.iam.gserviceaccount.com
 
-# 4. Copy the contents of github-actions-key.json
+# View the key (copy entire JSON)
 cat github-actions-key.json
+
+# Delete after copying to GitHub (security!)
+rm github-actions-key.json
 ```
+
+**Note**: All IAM permissions are already set by Terraform. No additional `gcloud` commands needed!
 
 **Value**: Entire JSON content (keep the formatting)
 
@@ -321,5 +317,15 @@ Before first deployment:
 - [ ] Verify deployment in Cloud Run console
 
 ---
+
+## 📚 Documentation
+
+- **[GITHUB_ACTIONS_EXPLAINED.md](./GITHUB_ACTIONS_EXPLAINED.md)** - 🎓 How GitHub Actions works (tutorial with examples)
+- **[Secrets Management](../infrastructure/terraform/SECRETS_VIA_GITHUB.md)** - Why GitHub Secrets
+- **[Infrastructure Overview](../docs/04-INFRASTRUCTURE.md)** - GCP architecture
+
+---
+
+**🎓 New to GitHub Actions?** Start with [GITHUB_ACTIONS_EXPLAINED.md](./GITHUB_ACTIONS_EXPLAINED.md)!
 
 **Need help?** Check the **Actions** tab for detailed logs of each deployment.
