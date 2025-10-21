@@ -6,7 +6,7 @@ This Terraform configuration manages all infrastructure for the DhakDhakGo backe
 
 ---
 
-## 🏗️ Infrastructure Components
+## 🏗️ Infrastructure Components 
 
 ### **What Gets Created:**
 
