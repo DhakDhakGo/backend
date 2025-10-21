@@ -126,7 +126,9 @@ const deleteReview = async (req, res, next) => {
 module.exports = {
   createReview,
   getAllReviews,
-  getReviewById,
+  getReview: getReviewById,        // Alias for routes compatibility
+  getReviewById,                   // Keep original name
+  getReviewsByUser: getAllReviews, // Temp alias - needs proper implementation
   updateReview,
   deleteReview
 };

@@ -163,9 +163,11 @@ const unlikeByTarget = async (req, res, next) => {
 
 module.exports = {
   createLike,
-  getLikesByTarget,
+  getLikesForPost: getLikesByTarget,  // Alias for routes compatibility
+  getLikesByTarget,                    // Keep original name
   getLikesByUser,
-  checkUserLike,
+  checkUserLiked: checkUserLike,       // Alias (add 'd')
+  checkUserLike,                        // Keep original name
   deleteLike,
   unlikeByTarget
 };
