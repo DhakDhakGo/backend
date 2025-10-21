@@ -72,6 +72,7 @@ infrastructure/terraform/crash.*.log
 !firebase.json
 !firestore.indexes.json
 !package.json
+!package-lock.json
 !tsconfig.json
 !.vscode/*.json
 github-actions-key.json
