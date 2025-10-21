@@ -8,7 +8,7 @@ This Terraform configuration manages all infrastructure for the DhakDhakGo backe
 
 ## 🏗️ Infrastructure Components 
 
-### **What Gets Created:**
+### **What Gets Created Through Our Approach:**
 
 1. **Cloud Run Services** (4)
    - user-service
