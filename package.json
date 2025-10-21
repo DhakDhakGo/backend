@@ -1,0 +1,20 @@
+{
+  "name": "bike-posts-backend",
+  "version": "1.0.0",
+  "description": "Microservices backend for bike posts application",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:user\" \"npm run dev:post\" \"npm run dev:ai\" \"npm run dev:interaction\"",
+    "dev:user": "cd services/user-service && npm run dev",
+    "dev:post": "cd services/post-service && npm run dev",
+    "dev:ai": "cd services/ai-service && npm run dev",
+    "dev:interaction": "cd services/interaction-service && npm run dev",
+    "deploy:all": "npm run deploy:user && npm run deploy:post && npm run deploy:ai && npm run deploy:interaction",
+    "deploy:user": "cd services/user-service && gcloud run deploy user-service --source . --region asia-south1",
+    "deploy:post": "cd services/post-service && gcloud run deploy post-service --source . --region asia-south1",
+    "deploy:ai": "cd services/ai-service && gcloud run deploy ai-service --source . --region asia-south1",
+    "deploy:interaction": "cd services/interaction-service && gcloud run deploy interaction-service --source . --region asia-south1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

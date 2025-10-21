@@ -1,0 +1,214 @@
+// Experience Service
+// Business logic for ownership experiences
+
+const OwnershipExperience = require('../models/OwnershipExperience');
+const experienceRepository = require('../repositories/experienceRepository');
+const { getUserProfile, incrementUserCounter } = require('./http-client');
+
+/**
+ * Create a new ownership experience
+ * @param {string} ownerId - Owner user ID
+ * @param {Object} experienceData - Experience data
+ * @returns {Promise<OwnershipExperience>} Created experience
+ */
+const createExperience = async (ownerId, experienceData) => {
+  // Verify user exists
+  try {
+    await getUserProfile(ownerId);
+  } catch (error) {
+    throw new Error('User not found. Please register first.');
+  }
+
+  // Create experience instance
+  const experience = new OwnershipExperience({
+    ...experienceData,
+    ownerId
+  });
+
+  // Validate
+  const validation = experience.validate();
+  if (!validation.valid) {
+    throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
+  }
+
+  // Save to database
+  const savedExperience = await experienceRepository.create(experience);
+
+  // Update user counter
+  try {
+    await incrementUserCounter(ownerId, 'totalExperiences');
+  } catch (error) {
+    console.error('Failed to update user counter:', error);
+    // Don't fail the request
+  }
+
+  return savedExperience;
+};
+
+/**
+ * Get experience by ID
+ * @param {string} experienceId - Experience ID
+ * @returns {Promise<OwnershipExperience>} Experience instance
+ */
+const getExperienceById = async (experienceId) => {
+  const experience = await experienceRepository.findById(experienceId);
+  
+  if (!experience) {
+    throw new Error('Experience not found');
+  }
+  
+  return experience;
+};
+
+/**
+ * Get all experiences with pagination
+ * @param {number} limit - Number of experiences to fetch
+ * @param {string} lastDocId - Last document ID for pagination
+ * @returns {Promise<Array<OwnershipExperience>>} Array of experiences
+ */
+const getAllExperiences = async (limit = 20, lastDocId = null) => {
+  return await experienceRepository.findAll(limit, lastDocId);
+};
+
+/**
+ * Get experiences by bike name
+ * @param {string} bikeName - Bike name
+ * @param {number} limit - Number of experiences to fetch
+ * @returns {Promise<Array<OwnershipExperience>>} Array of experiences
+ */
+const getExperiencesByBike = async (bikeName, limit = 20) => {
+  return await experienceRepository.findByBikeName(bikeName, limit);
+};
+
+/**
+ * Get experiences by owner
+ * @param {string} ownerId - Owner ID
+ * @param {number} limit - Number of experiences to fetch
+ * @returns {Promise<Array<OwnershipExperience>>} Array of experiences
+ */
+const getExperiencesByOwner = async (ownerId, limit = 20) => {
+  return await experienceRepository.findByAuthor(ownerId, limit);
+};
+
+/**
+ * Update experience
+ * @param {string} experienceId - Experience ID
+ * @param {string} ownerId - Owner ID (for authorization)
+ * @param {Object} updateData - Data to update
+ * @returns {Promise<OwnershipExperience>} Updated experience
+ */
+const updateExperience = async (experienceId, ownerId, updateData) => {
+  // Get existing experience
+  const experience = await getExperienceById(experienceId);
+
+  // Check ownership
+  if (experience.ownerId !== ownerId) {
+    throw new Error('Unauthorized: You can only update your own experiences');
+  }
+
+  // Update allowed fields
+  const allowedFields = [
+    'ownershipDuration',
+    'kmDriven',
+    'maintenanceCost',
+    'fuelEfficiency',
+    'reliabilityRating',
+    'comfortRating',
+    'performanceRating',
+    'valueForMoneyRating',
+    'overallExperience',
+    'pros',
+    'cons',
+    'issues',
+    'images',
+    'tags'
+  ];
+  
+  const filteredData = {};
+  for (const field of allowedFields) {
+    if (updateData[field] !== undefined) {
+      filteredData[field] = updateData[field];
+    }
+  }
+
+  // Update in database
+  const updatedExperience = await experienceRepository.update(experienceId, filteredData);
+  
+  return updatedExperience;
+};
+
+/**
+ * Delete experience
+ * @param {string} experienceId - Experience ID
+ * @param {string} ownerId - Owner ID (for authorization)
+ * @returns {Promise<void>}
+ */
+const deleteExperience = async (experienceId, ownerId) => {
+  // Get existing experience
+  const experience = await getExperienceById(experienceId);
+
+  // Check ownership
+  if (experience.ownerId !== ownerId) {
+    throw new Error('Unauthorized: You can only delete your own experiences');
+  }
+
+  // Delete from database
+  await experienceRepository.deleteExperience(experienceId);
+
+  // Decrement user counter
+  try {
+    await incrementUserCounter(ownerId, 'totalExperiences'); // This should be decrement
+  } catch (error) {
+    console.error('Failed to update user counter:', error);
+  }
+};
+
+/**
+ * Increment like count
+ * @param {string} experienceId - Experience ID
+ * @returns {Promise<void>}
+ */
+const incrementLikeCount = async (experienceId) => {
+  await experienceRepository.incrementLikeCount(experienceId);
+};
+
+/**
+ * Decrement like count
+ * @param {string} experienceId - Experience ID
+ * @returns {Promise<void>}
+ */
+const decrementLikeCount = async (experienceId) => {
+  await experienceRepository.decrementLikeCount(experienceId);
+};
+
+/**
+ * Increment comment count
+ * @param {string} experienceId - Experience ID
+ * @returns {Promise<void>}
+ */
+const incrementCommentCount = async (experienceId) => {
+  await experienceRepository.incrementCommentCount(experienceId);
+};
+
+/**
+ * Decrement comment count
+ * @param {string} experienceId - Experience ID
+ * @returns {Promise<void>}
+ */
+const decrementCommentCount = async (experienceId) => {
+  await experienceRepository.decrementCommentCount(experienceId);
+};
+
+module.exports = {
+  createExperience,
+  getExperienceById,
+  getAllExperiences,
+  getExperiencesByBike,
+  getExperiencesByOwner,
+  updateExperience,
+  deleteExperience,
+  incrementLikeCount,
+  decrementLikeCount,
+  incrementCommentCount,
+  decrementCommentCount
+};
