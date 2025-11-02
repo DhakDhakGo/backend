@@ -18,11 +18,21 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Firebase Auth errors
-  if (err.code && err.code.startsWith('auth/')) {
+  if (err.code && typeof err.code === 'string' && err.code.startsWith('auth/')) {
     return res.status(401).json({
       success: false,
       error: 'Authentication error',
       message: err.message
+    });
+  }
+
+  // Firestore index errors (code 9)
+  if (err.code === 9 || (err.details && err.details.includes('index'))) {
+    return res.status(500).json({
+      success: false,
+      error: 'Database index required',
+      message: 'A Firestore composite index is required for this query. Please create the index using the link provided.',
+      indexUrl: err.details?.match(/https:\/\/[^\s]+/)?.[0] || null
     });
   }
 
