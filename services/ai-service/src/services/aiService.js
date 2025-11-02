@@ -90,8 +90,11 @@ const getBikeInsights = async (bikeName, bikeModel = null, country = 'India') =>
     ...aiResponse
   });
 
+  // Convert to plain object for Firestore (can't save class instances)
+  const insightsData = JSON.parse(JSON.stringify(insights));
+
   // Save to cache
-  await cacheRepository.save(cacheKey, insights, 7); // Cache for 7 days
+  await cacheRepository.save(cacheKey, insightsData, 7); // Cache for 7 days
 
   return {
     data: insights,
@@ -169,8 +172,11 @@ const compareBikes = async (bikes, country = 'India') => {
     ...aiResponse
   });
 
+  // Convert to plain object for Firestore (can't save class instances)
+  const comparisonData = JSON.parse(JSON.stringify(comparison));
+
   // Save to cache
-  await cacheRepository.save(cacheKey, comparison, 3); // Cache for 3 days
+  await cacheRepository.save(cacheKey, comparisonData, 3); // Cache for 3 days
 
   return {
     data: comparison,
