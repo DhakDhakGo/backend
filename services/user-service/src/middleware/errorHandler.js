@@ -18,7 +18,7 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Firebase Auth errors
-  if (err.code && err.code.startsWith('auth/')) {
+  if (err.code && typeof err.code === 'string' && err.code.startsWith('auth/')) {
     return res.status(401).json({
       success: false,
       error: 'Authentication error',
