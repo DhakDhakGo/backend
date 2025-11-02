@@ -8,7 +8,7 @@ const modelConfig = {
   temperature: 0.7,  // Balanced creativity and accuracy
   topK: 40,
   topP: 0.95,
-  maxOutputTokens: 4096,
+  maxOutputTokens: 8192,  // Increased for Gemini 2.5 Flash to handle longer JSON responses
 };
 
 /**
