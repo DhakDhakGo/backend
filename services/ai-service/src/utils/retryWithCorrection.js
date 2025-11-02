@@ -125,9 +125,27 @@ const generateWithRetry = async (prompt, validateFn, sanitizeFn, maxAttempts = 2
       console.log(`🎯 Attempt ${attempts}/${maxAttempts}: Calling Gemini API...`);
 
       // Generate response
-      let response = await generateJSON(attempts === 1 ? prompt : 
-        createCorrectionPrompt(prompt, lastResponse, lastValidation.errors, lastValidation.warnings)
-      );
+      let response;
+      if (attempts === 1) {
+        response = await generateJSON(prompt);
+      } else {
+        // Retry with correction prompt only if we have validation errors from previous attempt
+        if (lastValidation && lastValidation.errors && lastValidation.errors.length > 0) {
+          response = await generateJSON(
+            createCorrectionPrompt(prompt, lastResponse, lastValidation.errors, lastValidation.warnings || [])
+          );
+        } else {
+          // If no validation errors but still failed (e.g., JSON parse error), retry with original prompt but emphasize JSON format
+          const retryPrompt = `${prompt}
+
+IMPORTANT: Your previous response was incomplete or invalid JSON. Please ensure:
+1. The JSON is complete and well-formed
+2. All fields are included
+3. The response is not truncated
+4. Return ONLY valid JSON without any markdown formatting`;
+          response = await generateJSON(retryPrompt);
+        }
+      }
 
       // Sanitize
       if (sanitizeFn) {
@@ -171,6 +189,16 @@ const generateWithRetry = async (prompt, validateFn, sanitizeFn, maxAttempts = 2
 
     } catch (error) {
       console.error(`❌ Attempt ${attempts} error:`, error.message);
+      
+      // Store error info for retry if we don't have validation errors yet
+      if (!lastValidation) {
+        lastResponse = null;
+        lastValidation = {
+          valid: false,
+          errors: [`JSON parsing failed: ${error.message}`],
+          warnings: []
+        };
+      }
       
       if (attempts >= maxAttempts) {
         return {
