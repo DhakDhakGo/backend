@@ -11,7 +11,7 @@
     "#models/*": "./src/models/*",
     "#routes/*": "./src/routes/*",
     "#middleware/*": "./src/middleware/*",
-    "#shared/*": "../../shared/*"
+    "#shared/*": "../shared/*"
   },
   "scripts": {
     "start": "node src/index.js",
