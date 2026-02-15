@@ -3,6 +3,16 @@
   "version": "1.0.0",
   "description": "Interaction Service for likes and comments",
   "main": "src/index.js",
+  "imports": {
+    "#config/*": "./src/config/*",
+    "#controllers/*": "./src/controllers/*",
+    "#services/*": "./src/services/*",
+    "#repositories/*": "./src/repositories/*",
+    "#models/*": "./src/models/*",
+    "#routes/*": "./src/routes/*",
+    "#middleware/*": "./src/middleware/*",
+    "#shared/*": "../../shared/*"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",

@@ -1,6 +1,7 @@
 // Experience Controller
 // HTTP request handling for ownership experiences
 
+const { createSearchCriteria } = require('#shared/utils/queryUtils');
 const experienceService = require('../services/experienceService');
 
 /**
@@ -20,6 +21,44 @@ const createExperience = async (req, res, next) => {
       success: true,
       message: 'Experience created successfully',
       data: createdExperience
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get all ownership experiences based on criteria
+ */
+const getExperiences = async (req, res, next) => {
+  try {
+    // Extract query parameters
+    const criteria = createSearchCriteria(req.query);
+    const experiences = await experienceService.getExperiencesBasedOnCriteria(criteria);
+    // Return response
+    res.json({
+      success: true,
+      count: experiences.length,
+      data: experiences
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getExperiencesByAuthor = async (req, res, next) => {
+  try {
+    // Extract user ID from params
+    const { id } = req.params;
+    const query = req.query;
+    const criteria = createSearchCriteria({ ...query, authorId: id });
+
+    const experiences = await experienceService.getExperiencesBasedOnCriteria(criteria);
+    // Return response
+    res.json({
+      success: true,
+      count: experiences.length,
+      data: experiences
     });
   } catch (error) {
     next(error);
@@ -126,9 +165,9 @@ const deleteExperience = async (req, res, next) => {
 module.exports = {
   createExperience,
   getAllExperiences,
-  getExperience: getExperienceById,        // Alias for routes compatibility
-  getExperienceById,                        // Keep original name
-  getExperiencesByUser: getAllExperiences,  // Temp alias - needs proper implementation
+  getExperiences,
+  getExperiencesByAuthor,
+  getExperienceById,
   updateExperience,
   deleteExperience
 };

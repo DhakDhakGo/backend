@@ -78,8 +78,17 @@ const getReviewById = async (reviewId) => {
  * @returns {Promise<Array<BikeReview>>} Array of reviews
  */
 const getAllReviews = async (limit = 20, lastDocId = null) => {
-  return await reviewRepository.findAll(limit, lastDocId);
+  return reviewRepository.findAll(limit, lastDocId);
 };
+
+/**
+ * Get all reviews with pagination
+ * @param {Object} criteria - An object with fields related to bike reviews
+ * @returns {Promise<Array<BikeReview>>} Array of reviews
+ */
+const getAllReviewsBasedOnCriteria = async (criteria) => {
+  return reviewRepository.findByCriteria(criteria);
+}
 
 /**
  * Get reviews by bike name
@@ -108,7 +117,7 @@ const getReviewsByAuthor = async (authorId, limit = 20) => {
  * @param {Object} updateData - Data to update
  * @returns {Promise<BikeReview>} Updated review
  */
-const updateReview = async (reviewId, authorId, updateData) => {
+export const updateReview = async (reviewId, authorId, updateData) => {
   // Get existing review
   const review = await getReviewById(reviewId);
 
@@ -199,6 +208,7 @@ module.exports = {
   createReview,
   getReviewById,
   getAllReviews,
+  getAllReviewsBasedOnCriteria,
   getReviewsByBike,
   getReviewsByAuthor,
   updateReview,

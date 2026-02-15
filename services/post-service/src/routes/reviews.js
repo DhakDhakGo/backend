@@ -3,19 +3,19 @@ const router = express.Router();
 
 const {
   createReview,
-  getAllReviews,
-  getReview,
+  getReviewById,
   updateReview,
   deleteReview,
-  getReviewsByUser
+  getReviews,
+  getReviewsByAuthor
 } = require('../controllers/reviewController');
 
-const { authenticateToken } = require('../middleware/auth-middleware');
+const { authenticateToken } = require('#shared/auth-middleware');
 
 // Public routes
-router.get('/', getAllReviews);
-router.get('/:id', getReview);
-router.get('/user/:userId', getReviewsByUser);
+router.get('/', getReviews);
+router.get('/:id', getReviewById);
+router.get('/user/:userId', getReviewsByAuthor);
 
 // Protected routes (require authentication)
 router.post('/', authenticateToken, createReview);

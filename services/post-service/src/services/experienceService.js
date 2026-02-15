@@ -60,6 +60,10 @@ const getExperienceById = async (experienceId) => {
   return experience;
 };
 
+const getExperiencesBasedOnCriteria = async (criteria) => {
+  return experienceRepository.findByCriteria(criteria);
+};
+
 /**
  * Get all experiences with pagination
  * @param {number} limit - Number of experiences to fetch
@@ -203,6 +207,7 @@ module.exports = {
   createExperience,
   getExperienceById,
   getAllExperiences,
+  getExperiencesBasedOnCriteria,
   getExperiencesByBike,
   getExperiencesByOwner,
   updateExperience,
