@@ -7,14 +7,14 @@ const { getUserProfile, incrementUserCounter } = require('./http-client');
 
 /**
  * Create a new ownership experience
- * @param {string} ownerId - Owner user ID
+ * @param {string} authorId - Owner user ID
  * @param {Object} experienceData - Experience data
  * @returns {Promise<OwnershipExperience>} Created experience
  */
-const createExperience = async (ownerId, experienceData) => {
+const createExperience = async (authorId, experienceData) => {
   // Verify user exists
   try {
-    await getUserProfile(ownerId);
+    await getUserProfile(authorId);
   } catch (error) {
     throw new Error('User not found. Please register first.');
   }
@@ -22,7 +22,7 @@ const createExperience = async (ownerId, experienceData) => {
   // Create experience instance
   const experience = new OwnershipExperience({
     ...experienceData,
-    ownerId
+    authorId
   });
 
   // Validate
@@ -36,7 +36,7 @@ const createExperience = async (ownerId, experienceData) => {
 
   // Update user counter
   try {
-    await incrementUserCounter(ownerId, 'totalExperiences');
+    await incrementUserCounter(authorId, 'totalExperiences');
   } catch (error) {
     console.error('Failed to update user counter:', error);
     // Don't fail the request
@@ -86,27 +86,27 @@ const getExperiencesByBike = async (bikeName, limit = 20) => {
 
 /**
  * Get experiences by owner
- * @param {string} ownerId - Owner ID
+ * @param {string} authorId - Owner ID
  * @param {number} limit - Number of experiences to fetch
  * @returns {Promise<Array<OwnershipExperience>>} Array of experiences
  */
-const getExperiencesByOwner = async (ownerId, limit = 20) => {
-  return await experienceRepository.findByAuthor(ownerId, limit);
+const getExperiencesByOwner = async (authorId, limit = 20) => {
+  return await experienceRepository.findByAuthor(authorId, limit);
 };
 
 /**
  * Update experience
  * @param {string} experienceId - Experience ID
- * @param {string} ownerId - Owner ID (for authorization)
+ * @param {string} authorId - Owner ID (for authorization)
  * @param {Object} updateData - Data to update
  * @returns {Promise<OwnershipExperience>} Updated experience
  */
-const updateExperience = async (experienceId, ownerId, updateData) => {
+const updateExperience = async (experienceId, authorId, updateData) => {
   // Get existing experience
   const experience = await getExperienceById(experienceId);
 
   // Check ownership
-  if (experience.ownerId !== ownerId) {
+  if (experience.authorId !== authorId) {
     throw new Error('Unauthorized: You can only update your own experiences');
   }
 
@@ -144,15 +144,15 @@ const updateExperience = async (experienceId, ownerId, updateData) => {
 /**
  * Delete experience
  * @param {string} experienceId - Experience ID
- * @param {string} ownerId - Owner ID (for authorization)
+ * @param {string} authorId - Owner ID (for authorization)
  * @returns {Promise<void>}
  */
-const deleteExperience = async (experienceId, ownerId) => {
+const deleteExperience = async (experienceId, authorId) => {
   // Get existing experience
   const experience = await getExperienceById(experienceId);
 
   // Check ownership
-  if (experience.ownerId !== ownerId) {
+  if (experience.authorId !== authorId) {
     throw new Error('Unauthorized: You can only delete your own experiences');
   }
 
@@ -161,7 +161,7 @@ const deleteExperience = async (experienceId, ownerId) => {
 
   // Decrement user counter
   try {
-    await incrementUserCounter(ownerId, 'totalExperiences'); // This should be decrement
+    await incrementUserCounter(authorId, 'totalExperiences'); // This should be decrement
   } catch (error) {
     console.error('Failed to update user counter:', error);
   }

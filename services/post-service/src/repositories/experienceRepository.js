@@ -89,7 +89,7 @@ const findByBikeName = async (bikeName, limit = 20) => {
 const findByAuthor = async (authorId, limit = 20) => {
   const db = getFirestore();
   const snapshot = await db.collection('ownershipExperiences')
-    .where('ownerId', '==', authorId)
+    .where('authorId', '==', authorId)
     .orderBy('createdAt', 'desc')
     .limit(limit)
     .get();
