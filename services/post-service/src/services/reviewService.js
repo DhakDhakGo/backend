@@ -117,7 +117,7 @@ const getReviewsByAuthor = async (authorId, limit = 20) => {
  * @param {Object} updateData - Data to update
  * @returns {Promise<BikeReview>} Updated review
  */
-export const updateReview = async (reviewId, authorId, updateData) => {
+const updateReview = async (reviewId, authorId, updateData) => {
   // Get existing review
   const review = await getReviewById(reviewId);
 

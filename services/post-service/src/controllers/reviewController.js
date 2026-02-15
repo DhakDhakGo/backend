@@ -137,7 +137,7 @@ const updateReview = async (req, res, next) => {
 /**
  * Delete review
  */
-export const deleteReview = async (req, res, next) => {
+const deleteReview = async (req, res, next) => {
   try {
     // Extract data from request
     const { id } = req.params;
