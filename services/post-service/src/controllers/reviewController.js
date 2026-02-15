@@ -60,9 +60,9 @@ const getAllReviews = async (req, res, next) => {
 const getReviewsByAuthor = async (req, res, next) => {
   try {
     // Extract user ID from params
-    const { id } = req.params;
+    const { userId } = req.params;
     const query = req.query;
-    const criteria = createSearchCriteria({ ...query, authorId: id });
+    const criteria = createSearchCriteria({ ...query, authorId: userId });
     const reviews = await reviewService.getAllReviewsBasedOnCriteria(criteria);
     // Return response
     res.json({
