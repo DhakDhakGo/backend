@@ -126,7 +126,7 @@ firestore/
   id: string,                  // Document ID
   bikeName: string,            // Bike name (required)
   bikeModel: string,           // Model/year
-  ownerId: string,             // User ID (required)
+  authorId: string,             // User ID (required)
   
   ownershipDuration: number,   // Duration in months (required)
   kmDriven: number,            // Total km driven (required)

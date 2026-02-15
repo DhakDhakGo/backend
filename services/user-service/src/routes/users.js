@@ -11,7 +11,7 @@ const {
   decrementCounter
 } = require('../controllers/userController');
 
-const { authenticateToken, isOwner } = require('../middleware/auth-middleware');
+const { authenticateToken, isOwner } = require('#shared/auth-middleware');
 
 // Public routes (require authentication)
 router.post('/register', authenticateToken, registerUser);

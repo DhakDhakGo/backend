@@ -2,6 +2,7 @@
 // HTTP request handling for bike reviews
 
 const reviewService = require('../services/reviewService');
+const { createSearchCriteria } = require('#shared/utils/queryUtils');
 
 /**
  * Create a new bike review
@@ -52,6 +53,38 @@ const getAllReviews = async (req, res, next) => {
       data: reviews
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+const getReviewsByAuthor = async (req, res, next) => {
+  try {
+    // Extract user ID from params
+    const { userId } = req.params;
+    const query = req.query;
+    const criteria = createSearchCriteria({ ...query, authorId: userId });
+    const reviews = await reviewService.getAllReviewsBasedOnCriteria(criteria);
+    // Return response
+    res.json({
+      success: true,
+      count: reviews.length,
+      data: reviews
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getReviews = async (req, res, next) => {
+  try {
+    const criteria = createSearchCriteria(req.query);
+    const reviews = await reviewService.getAllReviewsBasedOnCriteria(criteria);
+    res.json({
+      success: true,
+      count: reviews.length,
+      data: reviews
+    });
+  } catch(error) {
     next(error);
   }
 };
@@ -126,9 +159,9 @@ const deleteReview = async (req, res, next) => {
 module.exports = {
   createReview,
   getAllReviews,
-  getReview: getReviewById,        // Alias for routes compatibility
-  getReviewById,                   // Keep original name
-  getReviewsByUser: getAllReviews, // Temp alias - needs proper implementation
+  getReviews,
+  getReviewsByAuthor,
+  getReviewById,
   updateReview,
   deleteReview
 };

@@ -2,8 +2,10 @@
 // Handles Firestore operations for bike reviews
 
 const { getFirestore } = require('../config/firestore');
+const { collection, getDocs } = require("firebase/firestore");
 const BikeReview = require('../models/BikeReview');
 const admin = require('firebase-admin');
+const { createQueryBasedOnCriteria } = require('#shared/utils/queryUtils');
 
 /**
  * Create a new review
@@ -26,6 +28,14 @@ const findById = async (reviewId) => {
   const db = getFirestore();
   const doc = await db.collection('bikeReviews').doc(reviewId).get();
   return doc.exists ? BikeReview.fromFirestore(doc) : null;
+};
+
+const findByCriteria = async (criteria) => {
+  const db = getFirestore();
+  const bikeReviewsRef = collection(db, 'bikeReviews');
+  const q = await createQueryBasedOnCriteria(criteria, bikeReviewsRef);
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => BikeReview.fromFirestore(doc));
 };
 
 /**
@@ -164,6 +174,7 @@ module.exports = {
   create,
   findById,
   findAll,
+  findByCriteria,
   findByBikeName,
   findByAuthor,
   update,

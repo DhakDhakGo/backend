@@ -1,6 +1,7 @@
 // Experience Repository
 // Handles Firestore operations for ownership experiences
 
+const { createQueryBasedOnCriteria } = require('#shared/utils/queryUtils');
 const { getFirestore } = require('../config/firestore');
 const OwnershipExperience = require('../models/OwnershipExperience');
 const admin = require('firebase-admin');
@@ -26,6 +27,19 @@ const findById = async (experienceId) => {
   const db = getFirestore();
   const doc = await db.collection('ownershipExperiences').doc(experienceId).get();
   return doc.exists ? OwnershipExperience.fromFirestore(doc) : null;
+};
+
+/**
+ * Find experience by criteria
+ * @param {Object} criteria - Search criteria
+ * @returns {Promise<Array<OwnershipExperience>>} Array of matching experiences
+ */
+const findByCriteria = async (criteria) => {
+  const db = getFirestore();
+  const experiencesRef = collection(db, 'ownershipExperiences');
+  const q = await createQueryBasedOnCriteria(criteria, experiencesRef);
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => OwnershipExperience.fromFirestore(doc));
 };
 
 /**
@@ -75,7 +89,7 @@ const findByBikeName = async (bikeName, limit = 20) => {
 const findByAuthor = async (authorId, limit = 20) => {
   const db = getFirestore();
   const snapshot = await db.collection('ownershipExperiences')
-    .where('ownerId', '==', authorId)
+    .where('authorId', '==', authorId)
     .orderBy('createdAt', 'desc')
     .limit(limit)
     .get();
@@ -166,6 +180,7 @@ module.exports = {
   findAll,
   findByBikeName,
   findByAuthor,
+  findByCriteria,
   update,
   deleteExperience,
   incrementLikeCount,
