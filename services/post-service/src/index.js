@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { authenticateToken, optionalAuth, getUserInfo } = require('@dhak/shared/auth-middleware');
+const { authenticateToken, optionalAuth, getUserInfo } = require('@dhakdhakgo/shared/auth-middleware');
 const { initializeFirestore } = require('./config/firestore');
 const reviewRoutes = require('./routes/reviews');
 const experienceRoutes = require('./routes/experiences');

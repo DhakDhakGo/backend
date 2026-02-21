@@ -8,7 +8,7 @@ COPY services/interaction-service/package*.json ./services/interaction-service/
 
 # Install dependencies using BuildKit secret for secure token handling
 RUN --mount=type=secret,id=github_token \
-  echo "@dhak:registry=https://npm.pkg.github.com" > .npmrc && \
+  echo "@dhakdhakgo:registry=https://npm.pkg.github.com" > .npmrc && \
   echo "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/github_token)" >> .npmrc && \
   npm ci --production && \
   rm -f .npmrc

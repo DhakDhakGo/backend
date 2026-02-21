@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'services/post-service/**'
-      - 'services/shared/**'
       - '.github/workflows/deploy-post-service.yml'
   workflow_dispatch:
   workflow_run:

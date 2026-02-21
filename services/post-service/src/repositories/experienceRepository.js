@@ -1,7 +1,7 @@
 // Experience Repository
 // Handles Firestore operations for ownership experiences
 
-const { createQueryBasedOnCriteria } = require('@dhak/shared/utils/queryUtils');
+const { createQueryBasedOnCriteria } = require('@dhakdhakgo/shared/utils/queryUtils');
 const { getFirestore } = require('../config/firestore');
 const OwnershipExperience = require('../models/OwnershipExperience');
 const admin = require('firebase-admin');
