@@ -12,6 +12,8 @@ RUN --mount=type=secret,id=github_token \
   echo "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/github_token)" >> .npmrc && \
   npm ci --production && \
   rm -f .npmrc
+
+FROM node:18-alpine
 WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules
