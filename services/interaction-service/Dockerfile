@@ -3,7 +3,6 @@ WORKDIR /app
 
 # Copy root and workspace manifests
 COPY package*.json ./
-COPY services/shared/package*.json ./services/shared/
 COPY services/interaction-service/package*.json ./services/interaction-service/
 
 # Install dependencies using BuildKit secret for secure token handling
