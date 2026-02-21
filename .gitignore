@@ -99,3 +99,4 @@ coverage/
 *.temp
 .cache/
 GITHUB_SECRETS_SETUP.md
+.npmrc
