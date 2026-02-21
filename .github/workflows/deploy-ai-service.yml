@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'services/ai-service/**'
-      - 'services/shared/**'
       - '.github/workflows/deploy-ai-service.yml'
   workflow_dispatch:
   workflow_run:

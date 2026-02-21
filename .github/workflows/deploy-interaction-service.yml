@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'services/interaction-service/**'
-      - 'services/shared/**'
       - '.github/workflows/deploy-interaction-service.yml'
   workflow_dispatch:
   workflow_run:

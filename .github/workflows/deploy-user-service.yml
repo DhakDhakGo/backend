@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'services/user-service/**'
-      - 'services/shared/**'
       - '.github/workflows/deploy-user-service.yml'
   workflow_dispatch:
   workflow_run:
