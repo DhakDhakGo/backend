@@ -1,0 +1,33 @@
+name: Publish Shared Package
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/shared/**'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish @dhak/shared
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Publish package
+        working-directory: services/shared
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm config set @dhak:registry https://npm.pkg.github.com
+          npm config set //npm.pkg.github.com/:_authToken ${NODE_AUTH_TOKEN}
+          npm publish --registry=https://npm.pkg.github.com --access=restricted
