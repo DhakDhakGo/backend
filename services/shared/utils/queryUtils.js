@@ -7,9 +7,9 @@ const createSearchCriteria = (query) => {
     const regex = /"([^"]*)"|([^, ]+)/g;
     const matches = [...value.matchAll(regex)];
     if (matches.length > 1) {
-    criteria[key] = matches.map((m) => (m[1] || m[2]).trim());
+      criteria[key] = matches.map((m) => (m[1] || m[2]).trim());
     } else {
-    criteria[key] = (matches[0][1] || matches[0][2]).trim();
+      criteria[key] = (matches[0][1] || matches[0][2]).trim();
     }
   });
   return criteria;

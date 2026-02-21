@@ -5,7 +5,7 @@ const { getFirestore } = require('../config/firestore');
 const { collection, getDocs } = require("firebase/firestore");
 const BikeReview = require('../models/BikeReview');
 const admin = require('firebase-admin');
-const { createQueryBasedOnCriteria } = require('#shared/utils/queryUtils');
+const { createQueryBasedOnCriteria } = require('@dhak/shared/utils/queryUtils');
 
 /**
  * Create a new review

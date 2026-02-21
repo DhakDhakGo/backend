@@ -1,6 +1,7 @@
 {
   "name": "bike-posts-backend",
   "version": "1.0.0",
+  "private": true,
   "description": "Microservices backend for bike posts application",
   "scripts": {
     "dev": "concurrently \"npm run dev:user\" \"npm run dev:post\" \"npm run dev:ai\" \"npm run dev:interaction\"",

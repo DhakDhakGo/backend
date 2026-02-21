@@ -1,0 +1,6 @@
+{
+  "name": "@dhak/shared",
+  "version": "1.0.0",
+  "description": "Shared utilities and middleware for DhakDhakGo services",
+  "main": "index.js"
+}
