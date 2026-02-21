@@ -1,5 +1,9 @@
 name: Publish Shared Package
 
+permissions:
+  contents: write
+  packages: write
+
 on:
   push:
     branches:
