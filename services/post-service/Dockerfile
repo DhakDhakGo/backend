@@ -3,7 +3,6 @@ WORKDIR /app
 
 # Copy root and workspace manifests for deterministic installs
 COPY package*.json ./
-COPY services/shared/package*.json ./services/shared/
 COPY services/post-service/package*.json ./services/post-service/
 
 # Install dependencies using BuildKit secret for secure token handling
