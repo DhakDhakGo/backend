@@ -2,7 +2,7 @@
 // HTTP request handling for bike reviews
 
 const reviewService = require('../services/reviewService');
-const { createSearchCriteria } = require('@dhak/shared/utils/queryUtils');
+const { createSearchCriteria } = require('@DhakDhakGo/shared/utils/queryUtils');
 
 /**
  * Create a new bike review

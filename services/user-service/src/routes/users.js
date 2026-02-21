@@ -11,7 +11,7 @@ const {
   decrementCounter
 } = require('../controllers/userController');
 
-const { authenticateToken, isOwner } = require('@dhak/shared/auth-middleware');
+const { authenticateToken, isOwner } = require('@DhakDhakGo/shared/auth-middleware');
 
 // Public routes (require authentication)
 router.post('/register', authenticateToken, registerUser);

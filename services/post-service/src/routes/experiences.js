@@ -10,7 +10,7 @@ const {
   getExperiences
 } = require('../controllers/experienceController');
 
-const { authenticateToken } = require('@dhak/shared/auth-middleware');
+const { authenticateToken } = require('@DhakDhakGo/shared/auth-middleware');
 
 // Public routes
 router.get('/', getExperiences);
