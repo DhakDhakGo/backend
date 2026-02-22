@@ -1,9 +1,7 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Copy root and workspace manifests
-COPY package*.json ./
-COPY services/user-service/package*.json ./services/user-service/
+COPY services/user-service/package*.json ./
 
 # Install dependencies using BuildKit secret for secure token handling
 RUN --mount=type=secret,id=github_token \
@@ -17,6 +15,7 @@ WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY services/user-service/src ./src
+COPY services/user-service/package*.json ./
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
