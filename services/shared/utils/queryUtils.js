@@ -1,4 +1,4 @@
-const { doc, getDoc, query, orderBy, startAfter, where, limit } = require("firebase/firestore");
+const { doc, getDoc, query, orderBy, startAfter, where, limit } = require("@firebase/firestore");
 
 const createSearchCriteria = (query) => {
   let criteria = {};
