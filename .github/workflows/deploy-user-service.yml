@@ -1,5 +1,9 @@
 name: Deploy User Service
 
+permissions:
+  contents: read
+  packages: read
+
 on:
   push:
     branches:
@@ -23,7 +27,9 @@ jobs:
   deploy:
     name: Build and Deploy User Service
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
