@@ -6,7 +6,9 @@ COPY services/post-service/package*.json ./
 # Install dependencies using BuildKit secret for secure token handling
 RUN --mount=type=secret,id=github_token \
   echo "@dhakdhakgo:registry=https://npm.pkg.github.com" > .npmrc && \
-  echo "//npm.pkg.github.com/:_authToken=$(cat /run/secrets/github_token)" >> .npmrc && \
+  GITHUB_TOKEN=$(cat /run/secrets/github_token) && \
+  echo "Token length is: ${#GITHUB_TOKEN}" && \
+  echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> .npmrc && \
   npm ci --production && \
   rm -f .npmrc
 
