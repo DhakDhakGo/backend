@@ -1,9 +1,7 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Copy root and workspace manifests
-COPY package*.json ./
-COPY services/ai-service/package*.json ./services/ai-service/
+COPY services/ai-service/package*.json ./
 
 # Install dependencies using BuildKit secret for secure token handling
 RUN --mount=type=secret,id=github_token \
@@ -12,11 +10,12 @@ RUN --mount=type=secret,id=github_token \
   npm ci --production && \
   rm -f .npmrc
 
-FROM node:18-alpine
+FROM node:18-alpine AS runtime
 WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY services/ai-service/src ./src
+COPY services/ai-service/package*.json ./
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
