@@ -51,8 +51,10 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
         run: |
-          docker build --secret id=github_token,env=${{ secrets.GITHUB_TOKEN }} -f services/${{ env.SERVICE_NAME }}/Dockerfile -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
+          echo "${{ secrets.GITHUB_TOKEN }}" > github_token.txt
+          docker build --secret id=github_token,src=github_token.txt -f services/${{ env.SERVICE_NAME }}/Dockerfile -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
           docker tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:latest
+          rm github_token.txt
 
       - name: Push Docker image to GCR
         run: |
