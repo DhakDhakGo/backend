@@ -3,6 +3,8 @@
 
 const admin = require('firebase-admin');
 
+let db;
+
 function initilizeFirebase() {
   // Initialize Firebase Admin SDK if not already initialized
   if (!admin.apps.length) {
@@ -10,7 +12,9 @@ function initilizeFirebase() {
       credential: admin.credential.applicationDefault(),
       projectId: process.env.FIREBASE_PROJECT_ID || 'dhakdhakgo-472515'
     });
+    console.log('admin app initialized', admin.apps.length);
   }
+  db = admin.app().firestore();
 }
 
 /**
@@ -108,5 +112,6 @@ module.exports = {
   optionalAuth,
   getUserInfo,
   isOwner,
-  initilizeFirebase
+  initilizeFirebase,
+  getFirestoreDbInstance: () => db
 };
