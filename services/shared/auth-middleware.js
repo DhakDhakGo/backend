@@ -3,12 +3,14 @@
 
 const admin = require('firebase-admin');
 
-// Initialize Firebase Admin SDK if not already initialized
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-    projectId: process.env.FIREBASE_PROJECT_ID || 'dhakdhakgo-472515'
-  });
+function initilizeFirebase() {
+  // Initialize Firebase Admin SDK if not already initialized
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+      projectId: process.env.FIREBASE_PROJECT_ID || 'dhakdhakgo-472515'
+    });
+  }
 }
 
 /**
@@ -106,5 +108,5 @@ module.exports = {
   optionalAuth,
   getUserInfo,
   isOwner,
-  admin
+  initilizeFirebase
 };
