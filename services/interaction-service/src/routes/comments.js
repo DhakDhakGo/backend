@@ -9,7 +9,7 @@ const {
   getCommentsByUser
 } = require('../controllers/commentController');
 
-const { authenticateToken } = require('@dhakdhakgo/shared/auth-middleware');
+const { authenticateToken } = require('@dhakdhakgo/shared');
 
 // Public routes
 router.get('/post/:postId', getCommentsForPost);

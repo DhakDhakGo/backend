@@ -8,7 +8,7 @@ const {
   checkUserLiked
 } = require('../controllers/likeController');
 
-const { authenticateToken } = require('@dhakdhakgo/shared/auth-middleware');
+const { authenticateToken } = require('@dhakdhakgo/shared');
 
 // All like operations require authentication
 router.post('/', authenticateToken, createLike);

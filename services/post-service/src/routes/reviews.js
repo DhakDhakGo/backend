@@ -10,7 +10,7 @@ const {
   getReviewsByAuthor
 } = require('../controllers/reviewController');
 
-const { authenticateToken } = require('@dhakdhakgo/shared/auth-middleware');
+const { authenticateToken } = require('@dhakdhakgo/shared');
 
 // Public routes
 router.get('/', getReviews);

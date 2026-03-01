@@ -1,7 +1,7 @@
 // Comment Repository
 // Handles Firestore operations for comments
 
-const { getFirestore } = require('../config/firestore');
+const { getFirestoreDbInstance: getFirestore } = require('@dhakdhakgo/shared');
 const Comment = require('../models/Comment');
 const admin = require('firebase-admin');
 
