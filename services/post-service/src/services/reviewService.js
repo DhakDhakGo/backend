@@ -145,7 +145,7 @@ const updateReview = async (reviewId, authorId, updateData) => {
   return updatedReview;
 };
 
-const setAIDataApprovedStatus = async (reviewId, authorId, isApproved) => {
+const setAIDataApprovedStatus = async (reviewId, authorId, isVerified) => {
   let userProfile;
   const review = await getReviewById(reviewId);
   try {
@@ -159,7 +159,7 @@ const setAIDataApprovedStatus = async (reviewId, authorId, isApproved) => {
 
   // Update AI data approved status
   const updatedReview = await reviewRepository.update(reviewId, {
-    isAiDataApproved: isApproved
+    isAiDataVerified: isVerified
   });
 
   return updatedReview;
