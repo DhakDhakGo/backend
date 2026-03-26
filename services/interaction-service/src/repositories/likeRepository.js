@@ -1,7 +1,7 @@
 // Like Repository
 // Handles Firestore operations for likes
 
-const { getFirestore } = require('../config/firestore');
+const { getFirestoreDbInstance: getFirestore } = require('@dhakdhakgo/shared');
 const Like = require('../models/Like');
 
 /**

@@ -1,4 +1,4 @@
-const { getFirestore } = require('../config/firestore');
+const { getFirebaseDbInstance: getFirestore } = require('@dhakdhakgo/shared');
 
 /**
  * Get data from cache

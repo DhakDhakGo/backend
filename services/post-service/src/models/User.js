@@ -9,6 +9,7 @@ class User {
     this.email = data.email;
     this.displayName = data.displayName || '';
     this.photoURL = data.photoURL || '';
+    this.userRole = data.userRole || 'user'; // user, admin, etc.
     
     // Metadata
     this.createdAt = data.createdAt || Timestamp.now();

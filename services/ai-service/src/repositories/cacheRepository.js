@@ -1,7 +1,7 @@
 // Cache Repository
 // Handles Firestore operations for AI response caching
 
-const { getFirestore } = require('../config/firestore');
+const { getFirebaseDbInstance: getFirestore } = require('@dhakdhakgo/shared');
 
 /**
  * Get cached data by key

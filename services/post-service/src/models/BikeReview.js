@@ -28,6 +28,7 @@ class BikeReview {
     
     // AI-generated data (will be populated by AI Service)
     this.aiData = data.aiData || null;
+    this.isAiDataVerified = data.isAiDataVerified || false;
     
     // Metadata
     this.createdAt = data.createdAt || Timestamp.now();

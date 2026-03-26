@@ -10,7 +10,7 @@ const {
   getExperiences
 } = require('../controllers/experienceController');
 
-const { authenticateToken } = require('@dhakdhakgo/shared/auth-middleware');
+const { authenticateToken } = require('@dhakdhakgo/shared');
 
 // Public routes
 router.get('/', getExperiences);

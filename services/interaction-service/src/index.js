@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { initializeFirestore } = require('./config/firestore');
+const { initializeFirebase } = require('@dhakdhakgo/shared');
 const likeRoutes = require('./routes/likes');
 const commentRoutes = require('./routes/comments');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -8,8 +8,8 @@ const { errorHandler } = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 3003;
 
-// Initialize Firestore
-initializeFirestore();
+// Initialize firebase
+initializeFirebase();
 
 // Middleware
 app.use(cors());

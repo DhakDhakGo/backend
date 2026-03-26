@@ -100,3 +100,4 @@ coverage/
 .cache/
 GITHUB_SECRETS_SETUP.md
 .npmrc
+Dockerfile.local

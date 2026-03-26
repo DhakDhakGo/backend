@@ -13,8 +13,9 @@ const { getUserProfile, getBikeInsights, incrementUserCounter } = require('./htt
  */
 const createReview = async (authorId, reviewData) => {
   // Verify user exists
+  let userProfile;
   try {
-    await getUserProfile(authorId);
+    userProfile = await getUserProfile(authorId);
   } catch (error) {
     throw new Error('User not found. Please register first.');
   }
@@ -31,15 +32,17 @@ const createReview = async (authorId, reviewData) => {
     throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
   }
 
-  // Get AI insights if available
-  try {
-    const aiData = await getBikeInsights(review.bikeName);
-    if (aiData && aiData.data) {
-      review.setAIData(aiData.data);
+  if (userProfile.userRole === 'admin') {
+    // Get AI insights if available
+    try {
+      const aiData = await getBikeInsights(review.bikeName);
+      if (aiData && aiData.data) {
+        review.setAIData(aiData.data);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch AI insights:', error.message);
+      // Continue without AI data
     }
-  } catch (error) {
-    console.warn('Failed to fetch AI insights:', error.message);
-    // Continue without AI data
   }
 
   // Save to database
@@ -142,6 +145,26 @@ const updateReview = async (reviewId, authorId, updateData) => {
   return updatedReview;
 };
 
+const setAIDataApprovedStatus = async (reviewId, authorId, isVerified) => {
+  let userProfile;
+  const review = await getReviewById(reviewId);
+  try {
+    userProfile = await getUserProfile(authorId);
+  } catch (error) {
+    throw new Error('User not found. Please register first.');
+  }
+  if (review.authorId !== authorId && userProfile.userRole !== 'admin') {
+    throw new Error('You are not authorized to approve AI data for this review');
+  }
+
+  // Update AI data approved status
+  const updatedReview = await reviewRepository.update(reviewId, {
+    isAiDataVerified: isVerified
+  });
+
+  return updatedReview;
+};
+
 /**
  * Delete review
  * @param {string} reviewId - Review ID
@@ -212,6 +235,7 @@ module.exports = {
   getReviewsByBike,
   getReviewsByAuthor,
   updateReview,
+  setAIDataApprovedStatus,
   deleteReview,
   incrementLikeCount,
   decrementLikeCount,

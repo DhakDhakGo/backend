@@ -1,9 +1,9 @@
 // User Repository
 // Handles all Firestore operations for users
 
-const { getFirestore } = require('../config/firestore');
 const User = require('../models/User');
 const admin = require('firebase-admin');
+const { getFirestoreDbInstance: getFirestore } = require('@dhakdhakgo/shared');
 
 /**
  * Create or get user

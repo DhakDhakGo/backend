@@ -1,7 +1,7 @@
 // Experience Controller
 // HTTP request handling for ownership experiences
 
-const { createSearchCriteria } = require('@dhakdhakgo/shared/utils/queryUtils');
+const { createSearchCriteria } = require('@dhakdhakgo/shared');
 const experienceService = require('../services/experienceService');
 
 /**
