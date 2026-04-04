@@ -5,7 +5,7 @@ Write-Host "🔥 Firebase Environment Variables Setup" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
 $PROJECT_ID = "dhakdhakgo-472515"
-$REGION = "asia-south1"
+$REGION = "us-central1"
 $PROJECT_NUMBER = "134445090159"
 
 Write-Host "📋 Project Information:" -ForegroundColor Yellow

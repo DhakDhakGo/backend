@@ -1,0 +1,376 @@
+swagger: "2.0"
+info:
+  title: "DhakDhakGo API Gateway"
+  description: "Unified Gateway for AI, Users, Interactions, and Posts"
+  version: "1.0.0"
+schemes:
+  - "https"
+produces:
+  - "application/json"
+
+# GLOBAL SECURITY: Validates Firebase JWTs for all routes
+securityDefinitions:
+  firebase_auth:
+    type: "oauth2"
+    authorizationUrl: "https://accounts.google.com/o/oauth2/v2/auth"
+    flow: "implicit"
+    x-google-issuer: "https://securetoken.google.com/${project_id}"
+    x-google-jwks_uri: "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+    x-google-audiences: "${project_id}"
+  api_key:
+    type: "apiKey"
+    name: "X-API-Key"
+    in: "header"
+
+paths:
+  # 1. AI Service
+  /api/ai/bike-insights/{bikeName}:
+    get:
+      operationId: "getBikeInsights"
+      x-google-backend:
+        address: "https://ai-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "bikeName"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+  /api/ai/compare-bikes:
+    post:
+      operationId: "compareBikes"
+      x-google-backend:
+        address: "https://ai-service-134445090159.us-central1.run.app"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+  /api/ai/compare-summary:
+    post:
+      operationId: "getComparisonSummary"
+      x-google-backend:
+        address: "https://ai-service-134445090159.us-central1.run.app"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+
+  # 2. User Service
+  /api/users/{userId}:
+    get:
+      operationId: "getUser"
+      x-google-backend:
+        address: "https://user-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+    put:
+      operationId: "updateUser"
+      x-google-backend:
+        address: "https://user-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+  /api/users/{userId}/stats:
+    get:
+      operationId: "getUserStats"
+      x-google-backend:
+        address: "https://user-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+  /api/users/me:
+    get:
+      operationId: "getCurrentUser"
+      x-google-backend:
+        address: "https://user-service-134445090159.us-central1.run.app"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+  /api/users/register:
+    post:
+      operationId: "registerUser"
+      x-google-backend:
+        address: "https://user-service-134445090159.us-central1.run.app"
+      # No security for registration
+      responses:
+        201:
+          description: "Created"
+  /api/users/login:
+    post:
+      operationId: "loginUser"
+      x-google-backend:
+        address: "https://user-service-134445090159.us-central1.run.app"
+      security:
+        - api_key: []
+      responses:
+        200:
+          description: "Success"
+
+  # 3. Interaction Service
+  /api/comments/post/{postId}:
+    get:
+      operationId: "getCommentsForPost"
+      x-google-backend:
+        address: "https://interaction-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "postId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        201:
+          description: "Comments retrieved successfully"
+  /api/comments/user/{userId}:
+    get:
+      operationId: "getCommentsByUser"
+      x-google-backend:
+        address: "https://interaction-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        201:
+          description: "Comments retrieved successfully"
+  /api/likes:
+    post:
+      operationId: "createLike"
+      x-google-backend:
+        address: "https://interaction-service-134445090159.us-central1.run.app"
+      security:
+        - firebase_auth: []
+      responses:
+        201:
+          description: "Like created successfully"
+  /api/likes/{postId}:
+    get:
+      operationId: "getLikesForPost"
+      x-google-backend:
+        address: "https://interaction-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "postId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+    delete:
+      operationId: "deleteLike"
+      x-google-backend:
+        address: "https://interaction-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "postId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Like deleted successfully"
+  /api/likes/check/{postId}:
+    get:
+      operationId: "checkUserLiked"
+      x-google-backend:
+        address: "https://interaction-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "postId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+
+  # 4. Post Service
+  /api/experiences:
+    get:
+      operationId: "getAllExperiences"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+      # Example: No security for public feed
+      responses:
+        200:
+          description: "Success"
+    post:
+      operationId: "createExperience"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+      security:
+        - firebase_auth: []
+      responses:
+        201:
+          description: "Experience created successfully"
+  /api/experiences/{experienceId}:
+    get:
+      operationId: "getExperienceById"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "experienceId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+    put:
+      operationId: "updateExperience"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+      parameters:
+        - name: "experienceId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+    delete:
+      operationId: "deleteExperience"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+      parameters:
+        - name: "experienceId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Experience deleted successfully"
+  /api/experiences/user/{userId}:
+    get:
+      operationId: "getExperiencesByUser"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+
+  /api/reviews:
+    get:
+      operationId: "getAllReviews"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+      # Example: No security for public feed
+      responses:
+        200:
+          description: "Success"
+    post:
+      operationId: "createReview"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+      security:
+        - firebase_auth: []
+      responses:
+        201:
+          description: "Review created successfully"
+  /api/reviews/{reviewId}:
+    get:
+      operationId: "getReviewById"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "reviewId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+    put:
+      operationId: "updateReview"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "reviewId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Success"
+    delete:
+      operationId: "deleteReview"
+      x-google-backend:
+        address: "https://post-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
+      parameters:
+        - name: "reviewId"
+          in: "path"
+          required: true
+          type: "string"
+      security:
+        - firebase_auth: []
+      responses:
+        200:
+          description: "Review deleted successfully"

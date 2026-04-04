@@ -32,18 +32,18 @@ const createReview = async (authorId, reviewData) => {
     throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
   }
 
-  if (userProfile.userRole === 'admin') {
-    // Get AI insights if available
-    try {
-      const aiData = await getBikeInsights(review.bikeName);
-      if (aiData && aiData.data) {
-        review.setAIData(aiData.data);
-      }
-    } catch (error) {
-      console.warn('Failed to fetch AI insights:', error.message);
-      // Continue without AI data
-    }
-  }
+  // if (userProfile.userRole === 'admin') {
+  //   // Get AI insights if available
+  //   try {
+  //     const aiData = await getBikeInsights(review.bikeName);
+  //     if (aiData && aiData.data) {
+  //       review.setAIData(aiData.data);
+  //     }
+  //   } catch (error) {
+  //     console.warn('Failed to fetch AI insights:', error.message);
+  //     // Continue without AI data
+  //   }
+  // }
 
   // Save to database
   const savedReview = await reviewRepository.create(review);
@@ -57,6 +57,16 @@ const createReview = async (authorId, reviewData) => {
   }
 
   return savedReview;
+};
+
+const getAiDataForReview = async (review) => {
+  try {
+    const aiData = await getBikeInsights(review.bikeName);
+    return aiData;
+  } catch (error) {
+    console.warn('Failed to fetch AI insights:', error.message);
+    return null;
+  }
 };
 
 /**

@@ -7,8 +7,7 @@ const {
 } = require('../controllers/insightsController');
 
 const {
-  compareBikes,
-  getComparisonSummary
+  compareBikes
 } = require('../controllers/comparisonController');
 
 // Bike insights endpoints
@@ -17,6 +16,5 @@ router.get('/bike-insights/:bikeName', getBikeInsightsByName);
 
 // Bike comparison endpoints
 router.post('/compare-bikes', compareBikes);
-router.post('/compare-summary', getComparisonSummary);
 
 module.exports = router;

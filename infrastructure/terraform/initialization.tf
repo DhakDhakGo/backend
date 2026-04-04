@@ -5,7 +5,7 @@
 # Firestore Database
 resource "google_firestore_database" "database" {
   project     = var.project_id
-  name        = "(default)"
+  name        = "dhakdhakgo-firestore-db"
   location_id = var.region
   type        = "FIRESTORE_NATIVE"
 
@@ -22,27 +22,6 @@ resource "google_firestore_database" "database" {
 
 #   depends_on = [google_project_service.required_apis]
 # }
-
-# Service Account for Cloud Run
-resource "google_service_account" "cloud_run_sa" {
-  project       = var.project_id
-  account_id   = "cloud-run-sa"
-  display_name = "Cloud Run Service Account"
-  description  = "Service account for Cloud Run services"
-}
-
-# IAM roles for Cloud Run service account
-resource "google_project_iam_member" "cloud_run_sa_roles" {
-  for_each = toset([
-    "roles/datastore.user",      # Firestore access
-    "roles/firebase.admin",       # Firebase operations
-    "roles/aiplatform.user"       # Gemini AI access (optional)
-  ])
-
-  project = var.project_id
-  role    = each.value
-  member  = "serviceAccount:${google_service_account.cloud_run_sa.email}"
-}
 
 # Service Account for GitHub Actions CI/CD
 resource "google_service_account" "github_actions_sa" {

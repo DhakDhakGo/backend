@@ -1,0 +1,82 @@
+version: '3.8'
+services:
+  post-service:
+    image: dhakdhakgo/post-service:local
+    ports:
+      - "3001:3001"
+    networks:
+      - dhakdhakgo-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 60s
+        max_attempts: 2
+    secrets:
+      - firebase_key
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/firebase_key
+      - AI_SERVICE_URL=http://ai-service:3002
+      - INTERACTION_SERVICE_URL=http://interaction-service:3003
+      - USER_SERVICE_URL=http://user-service:3004
+  ai-service:
+    image: dhakdhakgo/ai-service:local
+    ports:
+      - "3002:3002"
+    networks:
+      - dhakdhakgo-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 2
+    env_file:
+      - ./services/ai-service/.env
+    secrets:
+      - firebase_key
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/firebase_key
+      - POST_SERVICE_URL=http://post-service:3001
+      - INTERACTION_SERVICE_URL=http://interaction-service:3003
+      - USER_SERVICE_URL=http://user-service:3004
+  interaction-service:
+    image: dhakdhakgo/interaction-service:local
+    ports:
+      - "3003:3003"
+    networks:
+      - dhakdhakgo-network
+    secrets:
+      - firebase_key
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/firebase_key
+      - POST_SERVICE_URL=http://post-service:3001
+      - AI_SERVICE_URL=http://ai-service:3002
+      - USER_SERVICE_URL=http://user-service:3004
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 2
+  user-service:
+    image: dhakdhakgo/user-service:local
+    ports:
+      - "3004:3004"
+    secrets:
+      - firebase_key
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/firebase_key
+      - POST_SERVICE_URL=http://post-service:3001
+      - AI_SERVICE_URL=http://ai-service:3002
+      - INTERACTION_SERVICE_URL=http://interaction-service:3003
+    networks:
+      - dhakdhakgo-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 2
+networks:
+  dhakdhakgo-network:
+    driver: bridge
+secrets:
+  firebase_key:
+    file: ./firebase_token.json

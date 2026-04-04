@@ -15,23 +15,87 @@ resource "google_project_service" "required_apis" {
     "firebase.googleapis.com",
     "endpoints.googleapis.com",
     "servicemanagement.googleapis.com",
-    "servicecontrol.googleapis.com"
+    "servicecontrol.googleapis.com",
+    "storage.googleapis.com"
   ])
 
   service = each.value
   disable_on_destroy = true
 }
 
-# Cloud Run Services
+resource "google_service_account" "ai_cloud_run_sa" {
+  project       = var.project_id
+  account_id   = "ai-cloud-run-sa"
+  display_name = "AI Cloud Run Service Account"
+  description  = "Service account for AI Cloud Run services"
+}
+
+resource "google_service_account" "post_cloud_run_sa" {
+  project       = var.project_id
+  account_id   = "post-cloud-run-sa"
+  display_name = "Post Cloud Run Service Account"
+  description  = "Service account for Post Cloud Run services"
+}
+
+resource "google_service_account" "interaction_cloud_run_sa" {
+  project       = var.project_id
+  account_id   = "interaction-cloud-run-sa"
+  display_name = "Interaction Cloud Run Service Account"
+  description  = "Service account for Interaction Cloud Run services"
+}
+
+resource "google_service_account" "user_cloud_run_sa" {
+  project       = var.project_id
+  account_id   = "user-cloud-run-sa"
+  display_name = "User Cloud Run Service Account"
+  description  = "Service account for User Cloud Run services"
+}
+
+# 2. Map Service Accounts into a local object for easier lookup in loops
+locals {
+  service_accounts = {
+    "ai-service"          = google_service_account.ai_cloud_run_sa.email
+    "post-service"        = google_service_account.post_cloud_run_sa.email
+    "interaction-service" = google_service_account.interaction_cloud_run_sa.email
+    "user-service"        = google_service_account.user_cloud_run_sa.email
+  }
+}
+
+# 3. Dynamic IAM Role Assignment based on var.service_role_mapping
+# This replaces the old "google_project_iam_member.cloud_run_sa_roles" block
+locals {
+  # Flatten the map to create a list of service-role pairs
+  role_pair_list = flatten([
+    for service, roles in var.service_role_mapping : [
+      for role in roles : {
+        service = service
+        role    = role
+      }
+    ]
+  ])
+}
+
+resource "google_project_iam_member" "service_specific_roles" {
+  for_each = { for pair in local.role_pair_list : "${pair.service}-${pair.role}" => pair }
+
+  project = var.project_id
+  role    = each.value.role
+  member  = "serviceAccount:${local.service_accounts[each.value.service]}"
+}
+
+# 4. Updated Cloud Run Services
 resource "google_cloud_run_v2_service" "microservices" {
   for_each = toset(var.services)
 
   project  = var.project_id
   name     = each.value
   location = var.region
+  
+  # NEW: Restrict network access to internal traffic and the API Gateway
+  ingress = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
 
   template {
-    service_account = google_service_account.cloud_run_sa.email
+    service_account = local.service_accounts[each.value]
     containers {
       image = "gcr.io/${var.project_id}/${each.value}:latest"
       
@@ -50,6 +114,11 @@ resource "google_cloud_run_v2_service" "microservices" {
         name  = "NODE_ENV"
         value = var.environment
       }
+
+#      env {
+#        name = "GEMINI_API_KEY"
+#        value = var.gemini_api_key
+#      }
 
       env {
         name  = "FIREBASE_PROJECT_ID"
@@ -93,22 +162,13 @@ resource "google_cloud_run_v2_service" "microservices" {
   depends_on = [google_project_service.required_apis]
 }
 
-# IAM policy for Cloud Run services
-resource "google_cloud_run_service_iam_policy" "noauth" {
+# This allows ONLY the API Gateway to call these services
+resource "google_cloud_run_v2_service_iam_member" "gateway_invoker" {
   for_each = toset(var.services)
 
+  project  = var.project_id
   location = google_cloud_run_v2_service.microservices[each.value].location
-  project  = google_cloud_run_v2_service.microservices[each.value].project
-  service  = google_cloud_run_v2_service.microservices[each.value].name
-
-  policy_data = data.google_iam_policy.noauth.policy_data
-}
-
-data "google_iam_policy" "noauth" {
-  binding {
-    role = "roles/run.invoker"
-    members = [
-      "allUsers",
-    ]
-  }
+  name     = google_cloud_run_v2_service.microservices[each.value].name
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.api_gw_sa.email}"
 }

@@ -45,8 +45,8 @@ class Like {
     if (!this.userId) errors.push('User ID is required');
     if (!this.postId) errors.push('Post ID is required');
     if (!this.postType) errors.push('Post type is required');
-    if (!['review', 'experience'].includes(this.postType)) {
-      errors.push('Post type must be either "review" or "experience"');
+    if (!['review', 'experience', 'comment'].includes(this.postType)) {
+      errors.push('Post type must be either "review", "experience", or "comment"');
     }
 
     return {

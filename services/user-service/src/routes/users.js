@@ -15,6 +15,7 @@ const { authenticateToken, isOwner } = require('@dhakdhakgo/shared');
 
 // Public routes (require authentication)
 router.post('/register', authenticateToken, registerUser);
+router.post('/login', authenticateToken, registerUser);
 router.get('/me', authenticateToken, getCurrentUser);
 
 // User profile routes

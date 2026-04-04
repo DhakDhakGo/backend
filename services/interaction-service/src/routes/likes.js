@@ -13,7 +13,7 @@ const { authenticateToken } = require('@dhakdhakgo/shared');
 // All like operations require authentication
 router.post('/', authenticateToken, createLike);
 router.delete('/:postId', authenticateToken, deleteLike);
-router.get('/post/:postId', getLikesForPost);
+router.get('/:postId', getLikesForPost);
 router.get('/check/:postId', authenticateToken, checkUserLiked);
 
 module.exports = router;

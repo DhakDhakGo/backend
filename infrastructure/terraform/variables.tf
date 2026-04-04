@@ -7,19 +7,31 @@ variable "project_id" {
 variable "region" {
   description = "The GCP region"
   type        = string
-  default     = "asia-south1"
+  default     = "us-central1"
+}
+
+variable "storage_class" {
+  description = "Storage class for GCS buckets"
+  type        = string
+  default     = "STANDARD"
 }
 
 variable "zone" {
   description = "The GCP zone"
   type        = string
-  default     = "asia-south1-a"
+  default     = "us-central1-a"
 }
 
 variable "environment" {
   description = "Environment (dev, staging, prod)"
   type        = string
   default     = "dev"
+}
+
+variable "gemini_api_key" {
+  description = "API key for Gemini AI (optional)"
+  type        = string
+  default     = "AIzaSyCU-hFVETHPwqQdFcAArd2EuIG04lbzUIs"
 }
 
 # Service Configuration
@@ -43,7 +55,7 @@ variable "cloud_run_config" {
     memory    = "512Mi"
     cpu       = "1"
     min_instances = 0
-    max_instances = 10
+    max_instances = 3
     timeout   = "300s"
   }
 }
@@ -57,6 +69,16 @@ variable "firebase_config" {
   })
   default = {
     project_id = ""
-    region     = "asia-south1"
+    region     = "us-central1"
+  }
+}
+
+variable "service_role_mapping" {
+  type = map(list(string))
+  default = {
+    "ai-service"          = ["roles/aiplatform.user", "roles/pubsub.publisher"]
+    "user-service"        = ["roles/datastore.user"]
+    "interaction-service" = ["roles/datastore.user"]
+    "post-service"        = ["roles/datastore.user"]
   }
 }

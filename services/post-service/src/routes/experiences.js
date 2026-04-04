@@ -18,7 +18,7 @@ router.get('/:id', getExperienceById);
 router.get('/user/:userId', getExperiencesByAuthor);
 
 // Protected routes (require authentication)
-router.post('/create', authenticateToken, createExperience);
+router.post('/', authenticateToken, createExperience);
 router.put('/:id', authenticateToken, updateExperience);
 router.delete('/:id', authenticateToken, deleteExperience);
 
