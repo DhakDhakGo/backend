@@ -23,27 +23,44 @@ function initializeFirebase() {
  * @param {Function} next - Express next function
  */
 const authenticateToken = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  if (process.env.NODE_ENV === 'local') {
+    try {
+      const authHeader = req.headers.authorization;
+      const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-    if (!token) {
-      return res.status(401).json({ 
-        error: 'Access token required',
-        message: 'Please provide a valid Firebase ID token in the Authorization header'
+      if (!token) {
+        return res.status(401).json({ 
+          error: 'Access token required',
+          message: 'Please provide a valid Firebase ID token in the Authorization header'
+        });
+      }
+
+      // Verify the Firebase ID token
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      req.user = decodedToken;
+      next();
+    } catch (error) {
+      console.error('Authentication error:', error);
+      return res.status(403).json({ 
+        error: 'Invalid token',
+        message: 'The provided token is invalid or expired'
+      });
+    }  
+  } else {
+    const encodedUserInfo = req.headers['x-apigateway-api-userinfo'];
+    if (encodedUserInfo) {
+      // 1. Decode base64url to string, then parse to JSON
+      const decodedUserInfo = JSON.parse(
+        Buffer.from(encodedUserInfo, 'base64').toString('utf-8')
+      );
+      req.user = decodedUserInfo; // Attach user info to request for downstream use
+      next();
+    } else {
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'User information is missing in the request headers'
       });
     }
-
-    // Verify the Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    console.error('Authentication error:', error);
-    return res.status(403).json({ 
-      error: 'Invalid token',
-      message: 'The provided token is invalid or expired'
-    });
   }
 };
 
