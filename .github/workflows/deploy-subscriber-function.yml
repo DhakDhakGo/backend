@@ -87,6 +87,7 @@ jobs:
 
       - name: Upload zip to Cloud Storage
         if: steps.check-archive.outputs.exists == 'false'
+        working-directory: services
         run: |
           HASH=${{ steps.create-package.outputs.hash }}
           gsutil cp subscriber-fn-deploy.zip "gs://${{ env.PROJECT_ID }}-data-storage/source-${HASH}.zip"
