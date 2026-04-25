@@ -4,6 +4,7 @@
 const BikeReview = require('../models/BikeReview');
 const reviewRepository = require('../repositories/reviewRepository');
 const { getUserProfile, getBikeInsights, incrementUserCounter } = require('./http-client');
+const { incrementOrDecrementUserCounter } = require('@dhakdhakgo/shared');
 
 /**
  * Create a new review
@@ -50,7 +51,7 @@ const createReview = async (authorId, reviewData) => {
 
   // Update user counter
   try {
-    await incrementUserCounter(authorId, 'totalReviews');
+    await incrementOrDecrementUserCounter(authorId, 'totalReviews');
   } catch (error) {
     console.error('Failed to update user counter:', error);
     // Don't fail the request

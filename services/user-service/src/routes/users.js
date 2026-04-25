@@ -19,14 +19,14 @@ router.post('/login', authenticateToken, registerUser);
 router.get('/me', authenticateToken, getCurrentUser);
 
 // User profile routes
-router.get('/:userId', getUserById);
+router.get('/:userId', authenticateToken, getUserById);
 router.put('/:userId', authenticateToken, isOwner, updateUser);
 
 // User stats
-router.get('/:userId/stats', getUserStats);
+router.get('/:userId/stats', authenticateToken, getUserStats);
 
 // Internal routes (for other services to update user stats)
-router.post('/:userId/increment', incrementCounter);
-router.post('/:userId/decrement', decrementCounter);
+router.post('/:userId/increment', authenticateToken, incrementCounter);
+router.post('/:userId/decrement', authenticateToken, decrementCounter);
 
 module.exports = router;

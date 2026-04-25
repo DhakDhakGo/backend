@@ -175,7 +175,6 @@ class OwnershipExperience {
   /**
    * Add AI insights
    * @param {Object} aiData - AI-generated insights
-   */
   setAIData(aiData) {
     this.aiData = {
       ...aiData,
@@ -183,6 +182,7 @@ class OwnershipExperience {
     };
     this.updatedAt = Timestamp.now();
   }
+  */
 }
 
 module.exports = OwnershipExperience;

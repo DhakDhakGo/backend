@@ -129,7 +129,7 @@ const incrementOrDecrementInteractionCounterOnPost = async (postId, postType, in
 const incrementOrDecrementUserCounter = async (userId, counterType, incrementOrDecrement) => {
   try {
     const action = incrementOrDecrement ? 'increment' : 'decrement';
-    await axios.post(`${SERVICE_URLS.user}/api/users/${userId}/${action}`, {
+    await callUserService('POST', `/api/users/${userId}/${action}`, {
       counterType
     });
   } catch (error) {

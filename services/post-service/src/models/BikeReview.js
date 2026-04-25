@@ -95,29 +95,29 @@ class BikeReview {
   /**
    * Increment interaction counter
    * @param {string} type - Type of interaction (likes, comments, views)
-   */
   incrementInteraction(type) {
     if (this.interactions[type] !== undefined) {
       this.interactions[type]++;
       this.updatedAt = Timestamp.now();
     }
   }
+  */
 
   /**
    * Decrement interaction counter
    * @param {string} type - Type of interaction (likes, comments, views)
-   */
+   
   decrementInteraction(type) {
     if (this.interactions[type] !== undefined && this.interactions[type] > 0) {
       this.interactions[type]--;
       this.updatedAt = Timestamp.now();
     }
   }
-
+  */
   /**
    * Add AI data to review
    * @param {Object} aiData - AI-generated data
-   */
+   
   setAIData(aiData) {
     this.aiData = {
       ...aiData,
@@ -125,6 +125,7 @@ class BikeReview {
     };
     this.updatedAt = Timestamp.now();
   }
+  */
 }
 
 module.exports = BikeReview;

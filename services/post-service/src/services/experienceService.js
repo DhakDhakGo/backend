@@ -3,7 +3,7 @@
 
 const OwnershipExperience = require('../models/OwnershipExperience');
 const experienceRepository = require('../repositories/experienceRepository');
-const { getUserProfile, incrementUserCounter } = require('./http-client');
+const { getUserProfile, incrementOrDecrementUserCounter } = require('@dhakdhakgo/shared');
 
 /**
  * Create a new ownership experience
@@ -36,7 +36,7 @@ const createExperience = async (authorId, experienceData) => {
 
   // Update user counter
   try {
-    await incrementUserCounter(authorId, 'totalExperiences');
+    await incrementOrDecrementUserCounter(authorId, 'totalExperiences');
   } catch (error) {
     console.error('Failed to update user counter:', error);
     // Don't fail the request

@@ -129,7 +129,7 @@ const deleteReview = async (reviewId) => {
 const incrementLikeCount = async (reviewId) => {
   const db = getFirestore();
   await db.collection('bikeReviews').doc(reviewId).update({
-    likeCount: admin.firestore.FieldValue.increment(1)
+    'interactions.likes': admin.firestore.FieldValue.increment(1)
   });
 };
 
@@ -141,7 +141,7 @@ const incrementLikeCount = async (reviewId) => {
 const decrementLikeCount = async (reviewId) => {
   const db = getFirestore();
   await db.collection('bikeReviews').doc(reviewId).update({
-    likeCount: admin.firestore.FieldValue.increment(-1)
+    'interactions.likes': admin.firestore.FieldValue.increment(-1)
   });
 };
 
@@ -153,7 +153,7 @@ const decrementLikeCount = async (reviewId) => {
 const incrementCommentCount = async (reviewId) => {
   const db = getFirestore();
   await db.collection('bikeReviews').doc(reviewId).update({
-    commentCount: admin.firestore.FieldValue.increment(1)
+    'interactions.comments': admin.firestore.FieldValue.increment(1)
   });
 };
 
@@ -165,7 +165,7 @@ const incrementCommentCount = async (reviewId) => {
 const decrementCommentCount = async (reviewId) => {
   const db = getFirestore();
   await db.collection('bikeReviews').doc(reviewId).update({
-    commentCount: admin.firestore.FieldValue.increment(-1)
+    'interactions.comments': admin.firestore.FieldValue.increment(-1)
   });
 };
 
