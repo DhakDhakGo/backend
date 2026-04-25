@@ -16,6 +16,8 @@ env:
   RUNTIME: ${{ vars.NODE_RUNTIME }}
   ENTRY_POINT: ${{ vars.SUBSCRIBER_FN_ENTRY_POINT }}
   TOPIC_NAME: ${{ vars.PUBSUB_TOPIC_NAME }}
+  WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+  DEPLOYMENT_SERVICE_ACCOUNT: ${{ vars.DEPLOYMENT_SERVICE_ACCOUNT }}
 
 jobs:
   deploy-dev:
@@ -26,11 +28,23 @@ jobs:
     
     permissions:
       contents: read
+      packages: read
       id-token: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+  
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.DEPLOYMENT_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
