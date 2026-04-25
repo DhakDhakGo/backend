@@ -156,6 +156,57 @@ const deleteReview = async (req, res, next) => {
   }
 };
 
+const incrementReviewLikeCount = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await reviewService.incrementLikeCount(id);
+    res.json({
+      success: true,
+      message: 'Like count incremented successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const decrementReviewLikeCount = async (req, res, next) => {
+  try {    const { id } = req.params;
+    await reviewService.decrementLikeCount(id);
+    res.json({
+      success: true,
+      message: 'Like count decremented successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const incrementReviewCommentCount = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await reviewService.incrementCommentCount(id);
+    res.json({
+      success: true,
+      message: 'Comment count incremented successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const decrementReviewCommentCount = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await reviewService.decrementCommentCount(id);
+    res.json({
+      success: true,
+      message: 'Comment count decremented successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createReview,
   getAllReviews,
@@ -163,5 +214,9 @@ module.exports = {
   getReviewsByAuthor,
   getReviewById,
   updateReview,
-  deleteReview
+  deleteReview,
+  incrementReviewLikeCount,
+  decrementReviewLikeCount,
+  incrementReviewCommentCount,
+  decrementReviewCommentCount
 };

@@ -15,30 +15,37 @@ on:
       - completed
 
 env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   SERVICE_NAME: post-service
-  REGION: asia-south1
+  REGION: ${{ vars.REGION }}
+  WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+  DEPLOYMENT_SERVICE_ACCOUNT: ${{ vars.DEPLOYMENT_SERVICE_ACCOUNT }}
+
 
 jobs:
-  deploy:
-    name: Build and Deploy Post Service
+  deploy-dev:
+    name: Build and Deploy Post Service to dev
     runs-on: ubuntu-latest
+    environment: 
+      name: dev
     permissions:
       contents: read
       packages: read
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.DEPLOYMENT_SERVICE_ACCOUNT }}
 
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+        uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ env.PROJECT_ID }}
 
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker
@@ -63,13 +70,14 @@ jobs:
             --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --platform managed \
-            --allow-unauthenticated \
+            --no-allow-unauthenticated \
             --memory 512Mi \
             --cpu 1 \
-            --max-instances 10 \
+            --max-instances 3 \
             --min-instances 0 \
             --timeout 300 \
-            --port 8080
+            --port 8080 \
+            --ingress internal
 
       - name: Show deployment URL
         run: |

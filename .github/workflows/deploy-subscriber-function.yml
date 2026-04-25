@@ -1,0 +1,116 @@
+name: Deploy Subscriber Function to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'services/subscriber-fn/**'
+      - '.github/workflows/deploy-subscriber-function.yml'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: ${{ vars.REGION }}
+  FUNCTION_NAME: subscriber-func
+  RUNTIME: ${{ vars.NODE_RUNTIME }}
+  ENTRY_POINT: ${{ vars.SUBSCRIBER_FN_ENTRY_POINT }}
+  TOPIC_NAME: ${{ vars.PUBSUB_TOPIC_NAME }}
+
+jobs:
+  deploy-dev:
+    name: Deploy Subscriber Function to dev
+    runs-on: ubuntu-latest
+    environment: 
+      name: dev
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        working-directory: services/subscriber-fn
+        run: npm ci
+
+      - name: Create deployment package and compute hash
+        id: create-package
+        run: |
+          cd services/subscriber-fn
+          zip -r ../subscriber-fn-deploy.zip . -x "node_modules/.git*" ".git*" ".env*"
+          cd ..
+          
+          # Compute MD5 hash (compatible with Linux/macOS)
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            HASH=$(md5sum subscriber-fn-deploy.zip | cut -d' ' -f1)
+          else
+            HASH=$(md5 -q subscriber-fn-deploy.zip)
+          fi
+          
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "📦 Package created: subscriber-fn-deploy.zip (hash: $HASH)"
+          ls -lh subscriber-fn-deploy.zip
+
+      - name: Check if source archive already exists
+        id: check-archive
+        run: |
+          HASH=${{ steps.create-package.outputs.hash }}
+          if gsutil ls "gs://${{ env.PROJECT_ID }}-data-storage/source-${HASH}.zip" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Source archive already exists, skipping upload"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "📤 Source archive not found, will upload"
+          fi
+
+      - name: Upload zip to Cloud Storage
+        if: steps.check-archive.outputs.exists == 'false'
+        run: |
+          HASH=${{ steps.create-package.outputs.hash }}
+          gsutil cp subscriber-fn-deploy.zip "gs://${{ env.PROJECT_ID }}-data-storage/source-${HASH}.zip"
+          echo "✅ Uploaded source-${HASH}.zip to GCS"
+
+      - name: Deploy to Cloud Run Functions from zip
+        run: |
+          HASH=${{ steps.create-package.outputs.hash }}
+          gcloud functions deploy ${{ env.FUNCTION_NAME }} \
+            --gen2 \
+            --runtime ${{ env.RUNTIME }} \
+            --region ${{ env.REGION }} \
+            --source "gs://${{ env.PROJECT_ID }}-data-storage/source-${HASH}.zip" \
+            --entry-point ${{ env.ENTRY_POINT }} \
+            --trigger-topic ${{ env.TOPIC_NAME }} \
+            --project ${{ env.PROJECT_ID }} \
+            --memory 256Mi \
+            --timeout 60s \
+            --max-instances 3 \
+            --service-account subscriber-function-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
+            --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},PROJECT_ID=${{ env.PROJECT_ID }}"
+
+      - name: Verify deployment
+        run: |
+          gcloud functions describe ${{ env.FUNCTION_NAME }} \
+            --gen2 \
+            --region ${{ env.REGION }} \
+            --project ${{ env.PROJECT_ID }}
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f subscriber-fn-deploy.zip
+
+      - name: Notify deployment
+        if: success()
+        run: echo "✅ Subscriber function deployed successfully to Cloud Run"
+
+      - name: Handle deployment failure
+        if: failure()
+        run: echo "❌ Deployment failed. Check logs above."

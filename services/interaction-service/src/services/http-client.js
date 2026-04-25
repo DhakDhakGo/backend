@@ -4,8 +4,8 @@
 const axios = require('axios');
 
 const SERVICE_URLS = {
-  user: process.env.USER_SERVICE_URL || 'https://user-service-134445090159.asia-south1.run.app',
-  post: process.env.POST_SERVICE_URL || 'https://post-service-134445090159.asia-south1.run.app',
+  user: process.env.USER_SERVICE_URL || 'https://user-service-134445090159.us-central1.run.app',
+  post: process.env.POST_SERVICE_URL || 'https://post-service-134445090159.us-central1.run.app',
 };
 
 /**
@@ -34,8 +34,6 @@ const incrementUserCounter = async (userId, counterType) => {
   try {
     await axios.post(`${SERVICE_URLS.user}/api/users/${userId}/increment`, {
       counterType
-    }, {
-      timeout: 5000
     });
   } catch (error) {
     console.warn('Failed to increment user counter:', error.message);
@@ -49,9 +47,7 @@ const incrementUserCounter = async (userId, counterType) => {
  */
 const getUserProfile = async (userId) => {
   try {
-    const response = await axios.get(`${SERVICE_URLS.user}/api/users/${userId}`, {
-      timeout: 5000
-    });
+    const response = await axios.get(`${SERVICE_URLS.user}/api/users/${userId}`);
     return response.data.data;
   } catch (error) {
     console.error('Failed to get user profile:', error.message);

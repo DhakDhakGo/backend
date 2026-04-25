@@ -1,7 +1,8 @@
 // Shared HTTP Client for Inter-Service Communication
 // Used by services to call other microservices
+const { GoogleAuth } = require('google-auth-library');
 
-const axios = require('axios');
+const auth = new GoogleAuth();
 
 // Service URLs (from environment variables or defaults)
 const SERVICE_URLS = {
@@ -20,7 +21,7 @@ const SERVICE_URLS = {
  * @param {Object} headers - Additional headers
  * @returns {Promise<Object>} Response data
  */
-const callService = async (service, method, path, data = null, headers = {}) => {
+const callService = async (service, method, path, data = null) => {
   try {
     const serviceUrl = SERVICE_URLS[service];
     
@@ -29,22 +30,14 @@ const callService = async (service, method, path, data = null, headers = {}) => 
     }
 
     const url = `${serviceUrl}${path}`;
-    
-    const config = {
-      method,
+
+    const client = await auth.getIdTokenClient(url);
+    const response = await client.request({
       url,
-      headers: {
-        'Content-Type': 'application/json',
-        ...headers
-      },
-      timeout: 10000 // 10 second timeout
-    };
-
-    if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
-      config.data = data;
-    }
-
-    const response = await axios(config);
+      method,
+      data,
+    });
+    
     return response.data;
   } catch (error) {
     console.error(`Service call failed: ${service} ${method} ${path}`, error.message);
@@ -107,18 +100,51 @@ const callInteractionService = async (method, path, data = null) => {
 };
 
 /**
+ * Increment post interaction counter
+ * @param {string} postId - Post ID
+ * @param {string} postType - Post type (review or experience)
+ * @param {string} interactionType - Interaction type (likes or comments)
+ * @param {boolean} incrementOrDecrement - True to increment, false to decrement
+ */
+const incrementOrDecrementInteractionCounterOnPost = async (postId, postType, interactionType, incrementOrDecrement) => {
+  try {
+    const interaction = interactionType === 'likes' ? 'likes' : 'comments';
+    const action = incrementOrDecrement ? 'increment' : 'decrement';
+    if (interaction === 'comments') {
+      await callPostService('PATCH', `/api/${postType}/${postId}/${action}-comment`);
+    } else {
+      await callPostService('PATCH', `/api/${postType}/${postId}/${action}-like`);
+    }
+  } catch (error) {
+    console.warn('Failed to increment post counter:', error.message);
+  }
+};
+
+/**
+ * Increment user counter
+ * @param {string} userId - User ID
+ * @param {string} counterType - Counter type
+ * @param {boolean} incrementOrDecrement - True to increment, false to decrement
+ */
+const incrementOrDecrementUserCounter = async (userId, counterType, incrementOrDecrement) => {
+  try {
+    const action = incrementOrDecrement ? 'increment' : 'decrement';
+    await callUserService('POST', `/api/users/${userId}/${action}`, {
+      counterType
+    });
+  } catch (error) {
+    console.warn('Failed to increment user counter:', error.message);
+  }
+};
+
+/**
  * Get user profile by ID
  * @param {string} userId - User ID
  * @returns {Promise<Object>} User profile
  */
 const getUserProfile = async (userId) => {
-  try {
-    const response = await callUserService('GET', `/api/users/${userId}`);
-    return response.data;
-  } catch (error) {
-    console.warn(`Failed to get user profile for ${userId}:`, error.message);
-    return null;
-  }
+  const response = await callUserService('GET', `/api/users/${userId}`);
+  return response.data;
 };
 
 /**
@@ -131,7 +157,11 @@ const verifyUserExists = async (userId) => {
     await getUserProfile(userId);
     return true;
   } catch (error) {
-    return false;
+    if (error.status === 404) {
+      return false;
+    } else {
+      throw error;
+    }
   }
 };
 
@@ -143,5 +173,7 @@ module.exports = {
   callInteractionService,
   getUserProfile,
   verifyUserExists,
+  incrementOrDecrementInteractionCounterOnPost,
+  incrementOrDecrementUserCounter,
   SERVICE_URLS
 };

@@ -2,10 +2,13 @@
 // Simplified version for Post Service
 
 const axios = require('axios');
+const { GoogleAuth } = require('google-auth-library');
+
+const auth = new GoogleAuth();
 
 const SERVICE_URLS = {
-  user: process.env.USER_SERVICE_URL || 'https://user-service-134445090159.asia-south1.run.app',
-  ai: process.env.AI_SERVICE_URL || 'https://ai-service-134445090159.asia-south1.run.app',
+  user: process.env.USER_SERVICE_URL || 'https://user-service-134445090159.us-central1.run.app',
+  ai: process.env.AI_SERVICE_URL || 'https://ai-service-134445090159.us-central1.run.app',
 };
 
 /**
@@ -15,8 +18,10 @@ const SERVICE_URLS = {
  */
 const getUserProfile = async (userId) => {
   try {
-    const response = await axios.get(`${SERVICE_URLS.user}/api/users/${userId}`, {
-      timeout: 5000
+    const client = await auth.getIdTokenClient(`${SERVICE_URLS.user}`);
+    const response = await client.request({
+      url: `${SERVICE_URLS.user}/api/users/${userId}`,
+      method: 'GET',
     });
     return response.data.data;
   } catch (error) {
@@ -32,10 +37,13 @@ const getUserProfile = async (userId) => {
  */
 const getBikeInsights = async (bikeName) => {
   try {
-    const response = await axios.post(`${SERVICE_URLS.ai}/api/ai/bike-insights`, {
-      bikeName
-    }, {
-      timeout: 10000
+    const client = await auth.getIdTokenClient(`${SERVICE_URLS.ai}/api/ai/bike-insights`);
+    const response = await client.request({
+      url: `${SERVICE_URLS.ai}/api/ai/bike-insights`,
+      method: 'POST',
+      data: {
+        bikeName
+      }
     });
     return response.data;
   } catch (error) {
@@ -51,10 +59,13 @@ const getBikeInsights = async (bikeName) => {
  */
 const incrementUserCounter = async (userId, counterType) => {
   try {
-    await axios.post(`${SERVICE_URLS.user}/api/users/${userId}/increment`, {
-      counterType
-    }, {
-      timeout: 5000
+    const client = await auth.getIdTokenClient(`${SERVICE_URLS.user}/api/users/${userId}/increment`);
+    await client.request({
+      url: `${SERVICE_URLS.user}/api/users/${userId}/increment`,
+      method: 'POST',
+      data: {
+        counterType
+      }
     });
   } catch (error) {
     console.warn('Failed to increment user counter:', error.message);

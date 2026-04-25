@@ -129,7 +129,7 @@ const incrementCounter = async (req, res, next) => {
   try {
     // Extract data from request
     const { userId } = req.params;
-    const { counterType } = req.body;
+    const { counterType } = req.query;
 
     // Call service layer
     await userService.incrementCounter(userId, counterType);
@@ -151,7 +151,7 @@ const decrementCounter = async (req, res, next) => {
   try {
     // Extract data from request
     const { userId } = req.params;
-    const { counterType } = req.body;
+    const { counterType } = req.query;
 
     // Call service layer
     await userService.decrementCounter(userId, counterType);

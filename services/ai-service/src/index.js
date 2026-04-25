@@ -34,8 +34,7 @@ app.get('/', (req, res) => {
     endpoints: {
       getBikeInsights: 'POST /api/ai/bike-insights',
       getBikeInsightsByName: 'GET /api/ai/bike-insights/:bikeName',
-      compareBikes: 'POST /api/ai/compare-bikes',
-      getComparisonSummary: 'POST /api/ai/compare-summary'
+      compareBikes: 'POST /api/ai/compare-bikes'
     }
   });
 });

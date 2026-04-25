@@ -23,6 +23,7 @@ const getBikeInsights = async (req, res, next) => {
     res.json({
       success: true,
       data: result.data,
+      jobId: result.jobId,
       cached: result.cached
     });
   } catch (error) {
@@ -53,6 +54,7 @@ const getBikeInsightsByName = async (req, res, next) => {
     res.json({
       success: true,
       data: result.data,
+      jobId: result.jobId,
       cached: result.cached
     });
   } catch (error) {

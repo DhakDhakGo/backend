@@ -133,7 +133,7 @@ const deleteExperience = async (experienceId) => {
 const incrementLikeCount = async (experienceId) => {
   const db = getFirestore();
   await db.collection('ownershipExperiences').doc(experienceId).update({
-    likeCount: admin.firestore.FieldValue.increment(1)
+    'interactions.likes': admin.firestore.FieldValue.increment(1)
   });
 };
 
@@ -145,7 +145,7 @@ const incrementLikeCount = async (experienceId) => {
 const decrementLikeCount = async (experienceId) => {
   const db = getFirestore();
   await db.collection('ownershipExperiences').doc(experienceId).update({
-    likeCount: admin.firestore.FieldValue.increment(-1)
+    'interactions.likes': admin.firestore.FieldValue.increment(-1)
   });
 };
 
@@ -157,7 +157,7 @@ const decrementLikeCount = async (experienceId) => {
 const incrementCommentCount = async (experienceId) => {
   const db = getFirestore();
   await db.collection('ownershipExperiences').doc(experienceId).update({
-    commentCount: admin.firestore.FieldValue.increment(1)
+    'interactions.comments': admin.firestore.FieldValue.increment(1)
   });
 };
 
@@ -169,7 +169,7 @@ const incrementCommentCount = async (experienceId) => {
 const decrementCommentCount = async (experienceId) => {
   const db = getFirestore();
   await db.collection('ownershipExperiences').doc(experienceId).update({
-    commentCount: admin.firestore.FieldValue.increment(-1)
+    'interactions.comments': admin.firestore.FieldValue.increment(-1)
   });
 };
 

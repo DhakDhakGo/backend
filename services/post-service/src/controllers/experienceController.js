@@ -162,6 +162,59 @@ const deleteExperience = async (req, res, next) => {
   }
 };
 
+const incrementExperienceLikeCount = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await experienceService.incrementLikeCount(id);
+    res.json({
+      success: true,
+      message: 'Like count incremented'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const decrementExperienceLikeCount = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await experienceService.decrementLikeCount(id);
+    res.json({
+      success: true,
+      message: 'Like count decremented'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const incrementExperienceCommentCount = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await experienceService.incrementCommentCount(id);
+    res.json({
+      success: true,
+      message: 'Comment count incremented'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const decrementExperienceCommentCount = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await experienceService.decrementCommentCount(id);
+    res.json({
+      success: true,
+      message: 'Comment count decremented'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 module.exports = {
   createExperience,
   getAllExperiences,
@@ -169,5 +222,9 @@ module.exports = {
   getExperiencesByAuthor,
   getExperienceById,
   updateExperience,
-  deleteExperience
+  deleteExperience,
+  incrementExperienceLikeCount,
+  decrementExperienceLikeCount,
+  incrementExperienceCommentCount,
+  decrementExperienceCommentCount
 };

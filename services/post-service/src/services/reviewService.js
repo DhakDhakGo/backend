@@ -4,6 +4,7 @@
 const BikeReview = require('../models/BikeReview');
 const reviewRepository = require('../repositories/reviewRepository');
 const { getUserProfile, getBikeInsights, incrementUserCounter } = require('./http-client');
+const { incrementOrDecrementUserCounter } = require('@dhakdhakgo/shared');
 
 /**
  * Create a new review
@@ -32,31 +33,41 @@ const createReview = async (authorId, reviewData) => {
     throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
   }
 
-  if (userProfile.userRole === 'admin') {
-    // Get AI insights if available
-    try {
-      const aiData = await getBikeInsights(review.bikeName);
-      if (aiData && aiData.data) {
-        review.setAIData(aiData.data);
-      }
-    } catch (error) {
-      console.warn('Failed to fetch AI insights:', error.message);
-      // Continue without AI data
-    }
-  }
+  // if (userProfile.userRole === 'admin') {
+  //   // Get AI insights if available
+  //   try {
+  //     const aiData = await getBikeInsights(review.bikeName);
+  //     if (aiData && aiData.data) {
+  //       review.setAIData(aiData.data);
+  //     }
+  //   } catch (error) {
+  //     console.warn('Failed to fetch AI insights:', error.message);
+  //     // Continue without AI data
+  //   }
+  // }
 
   // Save to database
   const savedReview = await reviewRepository.create(review);
 
   // Update user counter
   try {
-    await incrementUserCounter(authorId, 'totalReviews');
+    await incrementOrDecrementUserCounter(authorId, 'totalReviews');
   } catch (error) {
     console.error('Failed to update user counter:', error);
     // Don't fail the request
   }
 
   return savedReview;
+};
+
+const getAiDataForReview = async (review) => {
+  try {
+    const aiData = await getBikeInsights(review.bikeName);
+    return aiData;
+  } catch (error) {
+    console.warn('Failed to fetch AI insights:', error.message);
+    return null;
+  }
 };
 
 /**

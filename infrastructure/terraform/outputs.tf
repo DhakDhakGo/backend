@@ -8,9 +8,27 @@ output "cloud_run_urls" {
 }
 
 # Service Account Emails
-output "cloud_run_service_account_email" {
-  description = "Email of the service account for Cloud Run"
-  value       = google_service_account.cloud_run_sa.email
+output "ai_cloud_run_service_account_email" {
+  description = "Email of the AI service account for Cloud Run"
+  value       = google_service_account.ai_cloud_run_sa.email
+}
+
+# Service Account Emails
+output "user_cloud_run_service_account_email" {
+  description = "Email of the user service account for Cloud Run"
+  value       = google_service_account.user_cloud_run_sa.email
+}
+
+# Service Account Emails
+output "post_cloud_run_service_account_email" {
+  description = "Email of the post service account for Cloud Run"
+  value       = google_service_account.post_cloud_run_sa.email
+}
+
+# Service Account Emails
+output "interaction_cloud_run_service_account_email" {
+  description = "Email of the interaction service account for Cloud Run"
+  value       = google_service_account.interaction_cloud_run_sa.email
 }
 
 output "github_actions_service_account_email" {

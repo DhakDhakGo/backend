@@ -34,6 +34,7 @@ const generateContent = async (prompt, modelName = "gemini-2.5-flash") => {
     const model = getModel(modelName);
     const result = await model.generateContent(prompt);
     const response = await result.response;
+    Buffer.from(response)
     return response.text();
   } catch (error) {
     console.error('Gemini API error:', error);

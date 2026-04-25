@@ -23,7 +23,7 @@ const createLike = async (userId, likeData) => {
   // Check if user already liked this target
   const existingLike = await likeRepository.findByUserAndTarget(userId, targetType, targetId);
   if (existingLike) {
-    throw new Error('You have already liked this item');
+    throw new Error('Like already exists for this user and target');
   }
 
   // Verify user exists

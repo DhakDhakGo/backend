@@ -1,7 +1,7 @@
 // Cache Repository
 // Handles Firestore operations for AI response caching
 
-const { getFirebaseDbInstance: getFirestore } = require('@dhakdhakgo/shared');
+const { getFirestoreDbInstance: getFirestore } = require('@dhakdhakgo/shared');
 
 /**
  * Get cached data by key
@@ -10,7 +10,7 @@ const { getFirebaseDbInstance: getFirestore } = require('@dhakdhakgo/shared');
  */
 const get = async (cacheKey) => {
   const db = getFirestore();
-  const doc = await db.collection('aiCache').doc(cacheKey).get();
+  const doc = await db.collection('aiData').doc(cacheKey).get();
   
   if (!doc.exists) {
     return null;
@@ -33,7 +33,7 @@ const get = async (cacheKey) => {
  * @param {number} ttlDays - Time to live in days
  * @returns {Promise<void>}
  */
-const save = async (cacheKey, data, ttlDays = 7) => {
+const save = async (cacheKey, data, ttlDays = 90) => {
   const db = getFirestore();
   
   const expiresAt = new Date();
