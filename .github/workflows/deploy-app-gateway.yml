@@ -1,0 +1,133 @@
+name: Deploy API Gateway Config
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/terraform/openapi.yml'
+      - '.github/workflows/deploy-app-gateway.yml'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: ${{ vars.REGION }}
+  WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+  DEPLOYMENT_SERVICE_ACCOUNT: ${{ vars.DEPLOYMENT_SERVICE_ACCOUNT }}
+  API_ID: dhakdhakgo-api
+  GATEWAY_ID: dhakdhakgo-gateway
+
+jobs:
+  deploy-config:
+    name: Update API Gateway Config
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.DEPLOYMENT_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Validate OpenAPI Config
+        run: |
+          echo "Validating OpenAPI configuration..."
+          
+          # Check if file exists
+          if [ ! -f infrastructure/terraform/openapi.yml ]; then
+            echo "❌ openapi.yml not found!"
+            exit 1
+          fi
+          
+          # Basic YAML validation (using python if available)
+          python3 -c "import yaml; yaml.safe_load(open('infrastructure/terraform/openapi.yml'))" && \
+          echo "✅ OpenAPI YAML syntax is valid"
+
+      - name: Create API Config with Updated OpenAPI
+        id: create-config
+        run: |
+          # Generate unique config ID with timestamp
+          CONFIG_ID="v1-config-$(date +%s)"
+          echo "config_id=$CONFIG_ID" >> $GITHUB_OUTPUT
+          
+          echo "Creating new API config: $CONFIG_ID"
+          
+          # Create the API config from OpenAPI spec
+          gcloud api-gateway api-configs create "$CONFIG_ID" \
+            --api=${{ env.API_ID }} \
+            --openapi-spec=infrastructure/terraform/openapi.yml \
+            --backend-auth=SERVICE_ACCOUNT \
+            --project=${{ env.PROJECT_ID }} \
+            --backend-service-account=$(gcloud iam service-accounts list \
+              --filter="displayName:API Gateway Logic Identity" \
+              --format="value(email)")
+
+      - name: Update Gateway to Use New Config
+        run: |
+          CONFIG_ID=${{ steps.create-config.outputs.config_id }}
+          
+          echo "Updating gateway to use config: $CONFIG_ID"
+          
+          gcloud api-gateway gateways update ${{ env.GATEWAY_ID }} \
+            --api-config=$CONFIG_ID \
+            --location=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }}
+
+      - name: Get Gateway Details
+        id: gateway-info
+        run: |
+          GATEWAY_URL=$(gcloud api-gateway gateways describe ${{ env.GATEWAY_ID }} \
+            --location=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --format="value(defaultHostname)")
+          
+          echo "url=$GATEWAY_URL" >> $GITHUB_OUTPUT
+          echo "✅ Gateway URL: $GATEWAY_URL"
+
+      - name: Test API Gateway Endpoints
+        run: |
+          GATEWAY_URL=${{ steps.gateway-info.outputs.url }}
+          
+          echo "Testing API Gateway endpoints..."
+          echo "Gateway: https://$GATEWAY_URL"
+          
+          # Test without auth (should fail with 401 or 403)
+          echo "Testing /api/experiences endpoint..."
+          curl -X GET "https://$GATEWAY_URL/api/experiences" \
+            -H "Content-Type: application/json" \
+            -v \
+            --max-time 10 \
+            2>&1 | head -20 || echo "⚠️ Test request completed (auth expected to fail)"
+
+      - name: List Active API Configs
+        run: |
+          echo "Active API configs:"
+          gcloud api-gateway api-configs list \
+            --api=${{ env.API_ID }} \
+            --project=${{ env.PROJECT_ID }} \
+            --format="table(name, state, createTime)"
+
+      - name: Notify Deployment Success
+        if: success()
+        run: |
+          echo "✅ API Gateway config updated successfully!"
+          echo "🔗 Gateway URL: https://${{ steps.gateway-info.outputs.url }}"
+          echo "📝 Config ID: ${{ steps.create-config.outputs.config_id }}"
+          echo "📍 Region: ${{ env.REGION }}"
+
+      - name: Notify Deployment Failure
+        if: failure()
+        run: echo "❌ API Gateway config update failed. Check logs above."

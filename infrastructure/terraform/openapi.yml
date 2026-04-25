@@ -39,7 +39,16 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "Bike insights retrieved successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Bike not found"
+        500:
+          description: "AI service temporarily unavailable"
+        503:
+          description: "AI response format error"
+
   /api/ai/compare-bikes:
     post:
       operationId: "compareBikes"
@@ -49,7 +58,14 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "Bikes compared successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        500:
+          description: "AI service temporarily unavailable"
+        503:
+          description: "AI response format error"
+
   /api/ai/compare-summary:
     post:
       operationId: "getComparisonSummary"
@@ -59,7 +75,13 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "Comparison summary generated successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        500:
+          description: "AI service temporarily unavailable"
+        503:
+          description: "AI response format error"
 
   # 2. User Service
   /api/users/{userId}:
@@ -77,7 +99,14 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "User retrieved successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "User not found"
+        500:
+          description: "Internal server error"
+
     put:
       operationId: "updateUser"
       x-google-backend:
@@ -92,7 +121,14 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "User updated successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "User not found"
+        500:
+          description: "Internal server error"
+
   /api/users/{userId}/stats:
     get:
       operationId: "getUserStats"
@@ -108,7 +144,14 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "User stats retrieved successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "User not found"
+        500:
+          description: "Internal server error"
+
   /api/users/me:
     get:
       operationId: "getCurrentUser"
@@ -118,16 +161,27 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "Current user retrieved successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "User profile not found"
+        500:
+          description: "Internal server error"
+
   /api/users/register:
     post:
       operationId: "registerUser"
       x-google-backend:
         address: "https://user-service-134445090159.us-central1.run.app"
-      # No security for registration
       responses:
         201:
-          description: "Created"
+          description: "User registered successfully"
+        400:
+          description: "Invalid request body"
+        500:
+          description: "Internal server error"
+
   /api/users/login:
     post:
       operationId: "loginUser"
@@ -137,7 +191,11 @@ paths:
         - api_key: []
       responses:
         200:
-          description: "Success"
+          description: "Login successful"
+        401:
+          description: "Invalid credentials"
+        500:
+          description: "Internal server error"
 
   # 3. Interaction Service
   /api/comments/post/{postId}:
@@ -154,8 +212,14 @@ paths:
       security:
         - firebase_auth: []
       responses:
-        201:
+        200:
           description: "Comments retrieved successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Post not found"
+        500:
+          description: "Internal server error"
   /api/comments/user/{userId}:
     get:
       operationId: "getCommentsByUser"
@@ -170,8 +234,15 @@ paths:
       security:
         - firebase_auth: []
       responses:
-        201:
+        200:
           description: "Comments retrieved successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "User not found"
+        500:
+          description: "Internal server error"
+
   /api/likes:
     post:
       operationId: "createLike"
@@ -182,6 +253,11 @@ paths:
       responses:
         201:
           description: "Like created successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        500:
+          description: "Internal server error"
+
   /api/likes/{postId}:
     get:
       operationId: "getLikesForPost"
@@ -197,7 +273,14 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "Likes retrieved successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Post not found"
+        500:
+          description: "Internal server error"
+
     delete:
       operationId: "deleteLike"
       x-google-backend:
@@ -213,6 +296,13 @@ paths:
       responses:
         200:
           description: "Like deleted successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Like not found"
+        500:
+          description: "Internal server error"
+
   /api/likes/check/{postId}:
     get:
       operationId: "checkUserLiked"
@@ -228,7 +318,13 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "Like status checked successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Post not found"
+        500:
+          description: "Internal server error"
 
   # 4. Post Service
   /api/experiences:
@@ -236,10 +332,14 @@ paths:
       operationId: "getAllExperiences"
       x-google-backend:
         address: "https://post-service-134445090159.us-central1.run.app"
-      # Example: No security for public feed
       responses:
         200:
-          description: "Success"
+          description: "Experiences retrieved successfully"
+        500:
+          description: "Internal server error"
+        500:
+          description: "Database index required for this query"
+
     post:
       operationId: "createExperience"
       x-google-backend:
@@ -249,6 +349,11 @@ paths:
       responses:
         201:
           description: "Experience created successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        500:
+          description: "Internal server error"
+
   /api/experiences/{experienceId}:
     get:
       operationId: "getExperienceById"
@@ -264,11 +369,19 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "Experience retrieved successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Experience not found"
+        500:
+          description: "Internal server error"
+
     put:
       operationId: "updateExperience"
       x-google-backend:
         address: "https://post-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
       parameters:
         - name: "experienceId"
           in: "path"
@@ -278,11 +391,19 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "Experience updated successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Experience not found"
+        500:
+          description: "Internal server error"
+
     delete:
       operationId: "deleteExperience"
       x-google-backend:
         address: "https://post-service-134445090159.us-central1.run.app"
+        path_translation: APPEND_PATH_TO_ADDRESS
       parameters:
         - name: "experienceId"
           in: "path"
@@ -293,6 +414,13 @@ paths:
       responses:
         200:
           description: "Experience deleted successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Experience not found"
+        500:
+          description: "Internal server error"
+
   /api/experiences/user/{userId}:
     get:
       operationId: "getExperiencesByUser"
@@ -308,17 +436,25 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "User experiences retrieved successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "User not found"
+        500:
+          description: "Internal server error"
 
   /api/reviews:
     get:
       operationId: "getAllReviews"
       x-google-backend:
         address: "https://post-service-134445090159.us-central1.run.app"
-      # Example: No security for public feed
       responses:
         200:
-          description: "Success"
+          description: "Reviews retrieved successfully"
+        500:
+          description: "Internal server error"
+
     post:
       operationId: "createReview"
       x-google-backend:
@@ -328,6 +464,11 @@ paths:
       responses:
         201:
           description: "Review created successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        500:
+          description: "Internal server error"
+
   /api/reviews/{reviewId}:
     get:
       operationId: "getReviewById"
@@ -343,7 +484,14 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "Review retrieved successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Review not found"
+        500:
+          description: "Internal server error"
+
     put:
       operationId: "updateReview"
       x-google-backend:
@@ -358,7 +506,14 @@ paths:
         - firebase_auth: []
       responses:
         200:
-          description: "Success"
+          description: "Review updated successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Review not found"
+        500:
+          description: "Internal server error"
+
     delete:
       operationId: "deleteReview"
       x-google-backend:
@@ -374,3 +529,9 @@ paths:
       responses:
         200:
           description: "Review deleted successfully"
+        401:
+          description: "Authentication error - invalid or expired token"
+        404:
+          description: "Review not found"
+        500:
+          description: "Internal server error"

@@ -13,7 +13,7 @@ function initializeFirebase() {
       projectId: process.env.FIREBASE_PROJECT_ID
     });
   }
-  db = admin.app().firestore();
+  db = admin.app().firestore('dhakdhakgo-firestore-db');
 }
 
 /**
