@@ -10,13 +10,12 @@ resource "google_service_account" "api_gw_sa" {
   display_name = "API Gateway Logic Identity"
 }
 
-# 2. Permissions: Let Gateway invoke ALL 4 Cloud Run services
-# (Note: In production, you might want 4 separate blocks for tighter control)
-#resource "google_project_iam_member" "gw_run_invoker" {
-#  project = var.project_id
-#  role    = "roles/run.invoker"
-#  member  = "serviceAccount:${google_service_account.api_gw_sa.email}"
-#}
+resource "google_project_iam_member" "gw_role_settings" {
+  project = var.project_id
+  for_each = toset(var.api_gateway_roles)
+  role    = each.value
+  member  = "serviceAccount:${google_service_account.api_gw_sa.email}"
+}
 
 
 # 3. The API Container
@@ -29,7 +28,8 @@ resource "google_api_gateway_api" "main_api" {
 resource "google_api_gateway_api_config" "main_cfg" {
   provider      = google-beta
   api           = google_api_gateway_api.main_api.api_id
-  api_config_id = "v1-config-${formatdate("YYYYMMDDhhmmss", timestamp())}"
+  # api_config_id = "v1-config-${formatdate("YYYYMMDDhhmmss", timestamp())}"
+  api_config_id        = "v1-config-20260501132851"
 
   openapi_documents {
     document {
@@ -47,6 +47,7 @@ resource "google_api_gateway_api_config" "main_cfg" {
   }
 
   lifecycle {
+    
     create_before_destroy = true
   }
 }
