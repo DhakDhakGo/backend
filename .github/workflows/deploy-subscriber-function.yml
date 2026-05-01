@@ -54,7 +54,11 @@ jobs:
 
       - name: Install dependencies
         working-directory: services/subscriber-fn
-        run: npm ci
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" > github_token.txt
+          npm config set //npm.pkg.github.com/:_authToken $(cat github_token.txt)
+          npm ci
+          rm github_token.txt
 
       - name: Create deployment package and compute hash
         id: create-package
