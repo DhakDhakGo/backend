@@ -2,6 +2,10 @@
 # Firebase can be enabled at: https://console.firebase.google.com/
 # Or via: gcloud firebase projects:create PROJECT_ID
 
+locals {
+  github_actions_roles_set = toset(var.github_actions_roles)
+}
+
 # Firestore Database
 resource "google_firestore_database" "database" {
   project     = var.project_id
@@ -33,13 +37,7 @@ resource "google_service_account" "github_actions_sa" {
 
 # IAM roles for GitHub Actions service account
 resource "google_project_iam_member" "github_actions_roles" {
-  for_each = toset([
-    "roles/run.admin",                    # Deploy and manage Cloud Run services
-    "roles/storage.admin",                # Access to GCS buckets (for GCR backend)
-    "roles/artifactregistry.writer",      # Push images to Artifact Registry/GCR
-    "roles/iam.serviceAccountUser"        # Use Cloud Run service account
-  ])
-
+  for_each = toset(var.github_actions_roles)
   project = var.project_id
   role    = each.value
   member  = "serviceAccount:${google_service_account.github_actions_sa.email}"

@@ -76,9 +76,22 @@ variable "firebase_config" {
 variable "service_role_mapping" {
   type = map(list(string))
   default = {
-    "ai-service"          = ["roles/aiplatform.user", "roles/pubsub.publisher"]
+    "ai-service"          = ["roles/pubsub.publisher", "roles/datastore.user"]
     "user-service"        = ["roles/datastore.user"]
     "interaction-service" = ["roles/datastore.user"]
     "post-service"        = ["roles/datastore.user"]
   }
+}
+
+variable "api_gateway_roles" {
+  type = list(string)
+  default = ["roles/run.invoker"]
+}
+
+variable "github_actions_roles" {
+  type = list(string)
+}
+
+variable "cloud_function_build_roles" {
+  type = list(string)
 }

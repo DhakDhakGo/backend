@@ -1,4 +1,5 @@
 # Get project number for Cloud Run URLs
+
 data "google_project" "project" {
   project_id = var.project_id
 }
@@ -59,6 +60,13 @@ locals {
     "interaction-service" = google_service_account.interaction_cloud_run_sa.email
     "user-service"        = google_service_account.user_cloud_run_sa.email
   }
+
+  services_to_sa_full_id_mapping = {
+    "ai-service"          = "projects/${var.project_id}/serviceAccounts/${google_service_account.ai_cloud_run_sa.email}"
+    "post-service"        = "projects/${var.project_id}/serviceAccounts/${google_service_account.post_cloud_run_sa.email}"
+    "interaction-service" = "projects/${var.project_id}/serviceAccounts/${google_service_account.interaction_cloud_run_sa.email}"
+    "user-service"        = "projects/${var.project_id}/serviceAccounts/${google_service_account.user_cloud_run_sa.email}"
+  }
 }
 
 # 3. Dynamic IAM Role Assignment based on var.service_role_mapping
@@ -75,8 +83,9 @@ locals {
   ])
 }
 
+# Updated block
 resource "google_project_iam_member" "service_specific_roles" {
-  for_each = { for pair in local.role_pair_list : "${pair.service}-${pair.role}" => pair }
+  for_each = { for idx, pair in local.role_pair_list : "${pair.service}-${pair.role}" => pair }
 
   project = var.project_id
   role    = each.value.role
@@ -93,6 +102,19 @@ resource "google_cloud_run_v2_service" "microservices" {
   
   # NEW: Restrict network access to internal traffic and the API Gateway
   ingress = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
+
+  # Security options to prevent unauthorized access
+
+  
+  
+  
+  # security_settings {
+  #   # This ensures only authenticated requests can reach the service
+  #   authentication {
+  #     # This is the default, but we explicitly set it for clarity
+  #     type = "AUTHENTICATION_TYPE_AUTHENTICATED"
+  #   }
+  # }
 
   template {
     service_account = local.service_accounts[each.value]
@@ -114,11 +136,6 @@ resource "google_cloud_run_v2_service" "microservices" {
         name  = "NODE_ENV"
         value = var.environment
       }
-
-#      env {
-#        name = "GEMINI_API_KEY"
-#        value = var.gemini_api_key
-#      }
 
       env {
         name  = "FIREBASE_PROJECT_ID"
@@ -172,3 +189,12 @@ resource "google_cloud_run_v2_service_iam_member" "gateway_invoker" {
   role     = "roles/run.invoker"
   member   = "serviceAccount:${google_service_account.api_gw_sa.email}"
 }
+
+# Grant Service account user role to principal (github actions service account) on service accounts of all cloud run services
+resource "google_service_account_iam_member" "github_actions_sa_user" {
+  for_each =           { for service, full_id in local.services_to_sa_full_id_mapping : service => full_id }
+  service_account_id = each.value
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.github_actions_sa.email}"
+}
+

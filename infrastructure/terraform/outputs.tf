@@ -36,20 +36,21 @@ output "github_actions_service_account_email" {
   value       = google_service_account.github_actions_sa.email
 }
 
-output "github_actions_setup_commands" {
-  description = "Commands to create and download GitHub Actions service account key"
-  value = <<-EOT
-    # Create service account key for GitHub Actions:
-    gcloud iam service-accounts keys create github-actions-key.json \
-      --iam-account=${google_service_account.github_actions_sa.email}
+# Using Workload federated identity pool instead
+# output "github_actions_setup_commands" {
+#   description = "Commands to create and download GitHub Actions service account key"
+#   value = <<-EOT
+#     # Create service account key for GitHub Actions:
+#     gcloud iam service-accounts keys create github-actions-key.json \
+#       --iam-account=${google_service_account.github_actions_sa.email}
     
-    # View the key (copy this entire JSON for GitHub secret GCP_SA_KEY):
-    cat github-actions-key.json
+#     # View the key (copy this entire JSON for GitHub secret GCP_SA_KEY):
+#     cat github-actions-key.json
     
-    # IMPORTANT: Delete the key file after copying to GitHub:
-    rm github-actions-key.json
-  EOT
-}
+#     # IMPORTANT: Delete the key file after copying to GitHub:
+#     rm github-actions-key.json
+#   EOT
+# }
 
 # Project Information
 output "project_id" {
