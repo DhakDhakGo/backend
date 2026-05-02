@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'infrastructure/terraform/openapi.yml'
-      - '.github/workflows/deploy-app-gateway.yml'
+      - '.github/workflows/deploy-app-gateway-config.yml'
   workflow_dispatch:
 
 env:
