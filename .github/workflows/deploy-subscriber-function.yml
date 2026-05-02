@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - try-fixing-issue-with-subscriber-function-yaml
     paths:
       - 'services/subscriber-fn/**'
       - '.github/workflows/deploy-subscriber-function.yml'
