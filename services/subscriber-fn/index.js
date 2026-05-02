@@ -1,7 +1,7 @@
 const functions = require('@google-cloud/functions-framework');
 const aiFn = require('./ai-fn');
 
-functions.cloudEvent('handlePubSubMessage', (cloudEvent) => {
+functions.cloudEvent('handlePublishedMessage', (cloudEvent) => {
   // Your Firestore logic here
   const base64Data = cloudEvent.data.message.data;
   const { jobId, type } = cloudEvent.data.message.attributes || {};
