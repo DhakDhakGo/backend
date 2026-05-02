@@ -47,15 +47,25 @@ const authenticateToken = async (req, res, next) => {
       });
     }  
   } else {
+    console.log('Get user information from api gateway attached headers');
     const encodedUserInfo = req.headers['x-apigateway-api-userinfo'];
     if (encodedUserInfo) {
-      // 1. Decode base64url to string, then parse to JSON
-      const decodedUserInfo = JSON.parse(
-        Buffer.from(encodedUserInfo, 'base64').toString('utf-8')
-      );
-      req.user = decodedUserInfo; // Attach user info to request for downstream use
-      next();
+      try {
+        // 1. Decode base64url to string, then parse to JSON
+        const decodedUserInfo = JSON.parse(
+          Buffer.from(encodedUserInfo, 'base64').toString('utf-8')
+        );
+        req.user = decodedUserInfo; // Attach user info to request for downstream use
+        next();
+      } catch (error) {
+        console.error('Error parsing user information from headers:', error);
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Invalid user information format in headers'
+        });
+      }
     } else {
+      console.error('Authentication error: Missing user information in headers');
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'User information is missing in the request headers'
