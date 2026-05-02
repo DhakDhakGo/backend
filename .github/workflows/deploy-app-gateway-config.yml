@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fixing-api-gateway-deployment-yaml
     paths:
       - 'infrastructure/terraform/openapi.yml'
       - '.github/workflows/deploy-app-gateway-config.yml'
@@ -30,6 +31,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: fixing-api-gateway-deployment-yaml
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -89,6 +92,7 @@ jobs:
           echo "Updating gateway to use config: $CONFIG_ID"
           
           gcloud api-gateway gateways update ${{ env.GATEWAY_ID }} \
+            --api=${{ env.API_ID }} \
             --api-config=$CONFIG_ID \
             --location=${{ env.REGION }} \
             --project=${{ env.PROJECT_ID }}
