@@ -117,6 +117,7 @@ jobs:
             --memory 256Mi \
             --timeout 60s \
             --max-instances 3 \
+            --service-account subscriber-function-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},PROJECT_ID=${{ env.PROJECT_ID }}"
 
       - name: Verify deployment
