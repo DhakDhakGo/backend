@@ -36,9 +36,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: try-fixing-issue-with-subscriber-function-yaml
-
   
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
