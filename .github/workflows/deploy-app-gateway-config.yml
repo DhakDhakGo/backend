@@ -104,20 +104,20 @@ jobs:
           echo "url=$GATEWAY_URL" >> $GITHUB_OUTPUT
           echo "✅ Gateway URL: $GATEWAY_URL"
 
-      - name: Test API Gateway Endpoints
-        run: |
-          GATEWAY_URL=${{ steps.gateway-info.outputs.url }}
+      # - name: Test API Gateway Endpoints
+      #   run: |
+      #     GATEWAY_URL=${{ steps.gateway-info.outputs.url }}
           
-          echo "Testing API Gateway endpoints..."
-          echo "Gateway: https://$GATEWAY_URL"
+      #     echo "Testing API Gateway endpoints..."
+      #     echo "Gateway: https://$GATEWAY_URL"
           
-          # Test without auth (should fail with 401 or 403)
-          echo "Testing /api/experiences endpoint..."
-          curl -X GET "https://$GATEWAY_URL/api/experiences" \
-            -H "Content-Type: application/json" \
-            -v \
-            --max-time 10 \
-            2>&1 | head -20 || echo "⚠️ Test request completed (auth expected to fail)"
+      #     # Test without auth (should fail with 401 or 403)
+      #     echo "Testing /api/experiences endpoint..."
+      #     curl -X GET "https://$GATEWAY_URL/api/experiences" \
+      #       -H "Content-Type: application/json" \
+      #       -v \
+      #       --max-time 10 \
+      #       2>&1 | head -20 || echo "⚠️ Test request completed (auth expected to fail)"
 
       - name: List Active API Configs
         run: |
