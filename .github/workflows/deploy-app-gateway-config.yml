@@ -89,6 +89,7 @@ jobs:
           echo "Updating gateway to use config: $CONFIG_ID"
           
           gcloud api-gateway gateways update ${{ env.GATEWAY_ID }} \
+            --api=${{ env.API_ID }} \
             --api-config=$CONFIG_ID \
             --location=${{ env.REGION }} \
             --project=${{ env.PROJECT_ID }}
