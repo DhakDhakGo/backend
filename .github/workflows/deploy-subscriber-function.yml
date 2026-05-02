@@ -20,6 +20,7 @@ env:
   WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
   DEPLOYMENT_SERVICE_ACCOUNT: ${{ vars.DEPLOYMENT_SERVICE_ACCOUNT }}
   FUNCTION_BUILD_SERVICE_ACCOUNT: ${{ vars.FUNCTION_BUILD_SERVICE_ACCOUNT }}
+  GOOGLE_VENDOR_NPM_DEPENDENCIES: true
 
 jobs:
   deploy-dev:
@@ -118,7 +119,7 @@ jobs:
             --timeout 60s \
             --max-instances 3 \
             --service-account subscriber-function-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
-            --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},PROJECT_ID=${{ env.PROJECT_ID }}"
+            --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},GOOGLE_VENDOR_NPM_DEPENDENCIES=${{env.GOOGLE_VENDOR_NPM_DEPENDENCIES}}" \
 
       - name: Verify deployment
         run: |
