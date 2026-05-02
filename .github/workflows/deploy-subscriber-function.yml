@@ -18,7 +18,6 @@ env:
   TOPIC_NAME: ${{ vars.PUBSUB_TOPIC_NAME }}
   WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
   DEPLOYMENT_SERVICE_ACCOUNT: ${{ vars.DEPLOYMENT_SERVICE_ACCOUNT }}
-  FUNCTION_DEPLOYMENT_SERVICE_ACCOUNT: ${{ vars.FUNCTION_DEPLOYMENT_SERVICE_ACCOUNT }}
 
 jobs:
   deploy-dev:
@@ -109,11 +108,9 @@ jobs:
             --entry-point ${{ env.ENTRY_POINT }} \
             --trigger-topic ${{ env.TOPIC_NAME }} \
             --project ${{ env.PROJECT_ID }} \
-            --build-service-account ${{ env.FUNCTION_DEPLOYMENT_SERVICE_ACCOUNT }} \
             --memory 256Mi \
             --timeout 60s \
             --max-instances 3 \
-            --service-account subscriber-function-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},PROJECT_ID=${{ env.PROJECT_ID }}"
 
       - name: Verify deployment
