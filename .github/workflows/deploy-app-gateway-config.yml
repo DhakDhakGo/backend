@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - check-api-gateway-token-validation
     paths:
       - 'infrastructure/terraform/openapi.yml'
       - '.github/workflows/deploy-app-gateway-config.yml'
@@ -30,6 +31,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: check-api-gateway-token-validation
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -79,6 +82,7 @@ jobs:
             --openapi-spec=infrastructure/terraform/openapi.yml \
             --backend-auth-service-account="$SA_EMAIL" \
             --project=${{ env.PROJECT_ID }}
+            --set-env-vars "project_id=${{ env.PROJECT_ID }}"
           
           echo "✅ API config created successfully"
 
