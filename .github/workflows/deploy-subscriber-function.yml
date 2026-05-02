@@ -115,11 +115,12 @@ jobs:
             --trigger-topic ${{ env.TOPIC_NAME }} \
             --project ${{ env.PROJECT_ID }} \
             --build-service-account ${{ env.FUNCTION_BUILD_SERVICE_ACCOUNT }} \
+            --set-build-env-vars GOOGLE_VENDOR_NPM_DEPENDENCIES=true \
             --memory 256Mi \
             --timeout 60s \
             --max-instances 3 \
             --service-account subscriber-function-sa@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
-            --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},GOOGLE_VENDOR_NPM_DEPENDENCIES=${{env.GOOGLE_VENDOR_NPM_DEPENDENCIES}}" \
+            --set-env-vars "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
 
       - name: Verify deployment
         run: |
