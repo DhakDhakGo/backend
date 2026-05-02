@@ -87,7 +87,7 @@ resource "google_cloudfunctions2_function" "subscriber_fn" {
   build_config {
     runtime     = "nodejs22"
     entry_point = "handlePublishedMessage"
-    service_account = "${google_service_account.cloud_function_build_service_account.name}"
+    service_account = google_service_account.cloud_function_build_service_account.name
         
     source {
       storage_source {
@@ -131,6 +131,12 @@ resource "google_cloud_run_v2_service_iam_member" "invoker" {
 
 resource "google_service_account_iam_member" "github_actions_function_sa_user" {
   service_account_id = "projects/${var.project_id}/serviceAccounts/${google_service_account.function_sa.email}"
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.github_actions_sa.email}"
+}
+
+resource "google_service_account_iam_member" "github_actions_cloud_function_build_sa_user" {
+  service_account_id = "projects/${var.project_id}/serviceAccounts/${google_service_account.cloud_function_build_service_account.email}"
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${google_service_account.github_actions_sa.email}"
 }
