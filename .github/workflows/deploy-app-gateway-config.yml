@@ -89,7 +89,7 @@ jobs:
             --api=${{ env.API_ID }} \
             --openapi-spec=infrastructure/terraform/openapi_final.yml \
             --backend-auth-service-account="$SA_EMAIL" \
-            --project=${{ env.PROJECT_ID }}"
+            --project=${{ env.PROJECT_ID }}
           
           echo "✅ API config created successfully"
 
