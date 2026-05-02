@@ -61,11 +61,11 @@ jobs:
 
       - name: Prepare OpenAPI Spec
         env:
-          PROJECT_ID: "dhakdhakgo-472515" # Or use ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ env.PROJECT_ID }}
         run: |
           # This takes openapi.yml, replaces ${PROJECT_ID}, 
           # and saves it to a temporary file
-          envsubst '${PROJECT_ID}' < infrastructure/terraform/openapi.yml > infrastructure/terraform/openapi_final.yml
+          envsubst '${project_id}' < infrastructure/terraform/openapi.yml > infrastructure/terraform/openapi_final.yml
 
       - name: Create API Config with Updated OpenAPI
         id: create-config
