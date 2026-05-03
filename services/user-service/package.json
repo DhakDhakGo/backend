@@ -18,7 +18,7 @@
     "test": "echo 'No tests yet'"
   },
   "dependencies": {
-    "@dhakdhakgo/shared": "^0.0.9",
+    "@dhakdhakgo/shared": "^0.0.10-alpha.0",
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "@google-cloud/firestore": "^7.11.0",
