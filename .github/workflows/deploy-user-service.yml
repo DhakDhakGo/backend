@@ -26,7 +26,7 @@ env:
   WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
   DEPLOYMENT_SERVICE_ACCOUNT: ${{ vars.DEPLOYMENT_SERVICE_ACCOUNT }}
   IS_AUTHENTICATED_VIA_AUTH_GATEWAY: true
-
+  FIRESTORE_DATABASE_NAME: ${{ vars.FIRESTORE_DATABASE_NAME }}
 jobs:
   deploy-dev:
     name: Build and Deploy User Service to dev
@@ -85,7 +85,7 @@ jobs:
             --timeout 300 \
             --port 8080 \
             --ingress all \
-            --set-env-vars "IS_AUTHENTICATED_VIA_AUTH_GATEWAY=${{ env.IS_AUTHENTICATED_VIA_AUTH_GATEWAY }},FIREBASE_PROJECT_ID=${{ env.PROJECT_ID }}"
+            --set-env-vars "IS_AUTHENTICATED_VIA_AUTH_GATEWAY=${{ env.IS_AUTHENTICATED_VIA_AUTH_GATEWAY }},FIREBASE_PROJECT_ID=${{ env.PROJECT_ID }},DATABASE_NAME=${{ env.FIRESTORE_DATABASE_NAME }}"
 
       - name: Show deployment URL
         run: |
