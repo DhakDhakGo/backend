@@ -23,11 +23,11 @@ function initializeFirebase() {
  * @param {Function} next - Express next function
  */
 const authenticateToken = async (req, res, next) => {
-  if (process.env.NODE_ENV === 'local') {
+  const authHeader = req.headers.authorization;
+  // If running locally or in an environment without API Gateway, use Authorization header
+  if (authHeader) {
     try {
-      const authHeader = req.headers.authorization;
       const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
       if (!token) {
         return res.status(401).json({ 
           error: 'Access token required',
@@ -37,7 +37,7 @@ const authenticateToken = async (req, res, next) => {
 
       // Verify the Firebase ID token
       const decodedToken = await admin.auth().verifyIdToken(token);
-      req.user = decodedToken;
+      req.user = getUserInfo(decodedToken);
       next();
     } catch (error) {
       console.error('Authentication error:', error);
@@ -47,20 +47,17 @@ const authenticateToken = async (req, res, next) => {
       });
     }  
   } else {
-    console.log('Get user information from api gateway attached headers');
+    // When deployed behind API Gateway, user info is passed in a custom header (base64 encoded JSON)
     const encodedUserInfo = req.headers['x-apigateway-api-userinfo'];
-    console.log('Test Encoded user info from headers:', encodedUserInfo);
     if (encodedUserInfo) {
       try {
         // 1. Decode base64url to string, then parse to JSON
         const decodedUserInfo = JSON.parse(
           Buffer.from(encodedUserInfo, 'base64').toString('utf-8')
         );
-        req.user = decodedUserInfo; // Attach user info to request for downstream use
-        console.log('Received user info:', decodedUserInfo);
+        req.user = getUserInfo(decodedUserInfo);
         next();
       } catch (error) {
-        console.error('Error parsing user information from headers:', error);
         return res.status(400).json({
           error: 'Bad Request',
           message: 'Invalid user information format in headers'
@@ -81,7 +78,7 @@ const authenticateToken = async (req, res, next) => {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
- */
+ 
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -99,6 +96,7 @@ const optionalAuth = async (req, res, next) => {
     next();
   }
 };
+*/
 
 /**
  * Get user information from decoded token
@@ -107,7 +105,7 @@ const optionalAuth = async (req, res, next) => {
  */
 const getUserInfo = (user) => {
   return {
-    uid: user.uid,
+    uid: user.uid ?? user.sub,
     email: user.email,
     emailVerified: user.email_verified,
     name: user.name,
@@ -137,7 +135,7 @@ const isOwner = (req, res, next) => {
 
 module.exports = {
   authenticateToken,
-  optionalAuth,
+  //optionalAuth,
   getUserInfo,
   isOwner,
   initializeFirebase,
