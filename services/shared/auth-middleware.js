@@ -49,6 +49,7 @@ const authenticateToken = async (req, res, next) => {
   } else {
     console.log('Get user information from api gateway attached headers');
     const encodedUserInfo = req.headers['x-apigateway-api-userinfo'];
+    console.log('Test Encoded user info from headers:', encodedUserInfo);
     if (encodedUserInfo) {
       try {
         // 1. Decode base64url to string, then parse to JSON
@@ -56,6 +57,7 @@ const authenticateToken = async (req, res, next) => {
           Buffer.from(encodedUserInfo, 'base64').toString('utf-8')
         );
         req.user = decodedUserInfo; // Attach user info to request for downstream use
+        console.log('Received user info:', decodedUserInfo);
         next();
       } catch (error) {
         console.error('Error parsing user information from headers:', error);
