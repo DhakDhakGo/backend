@@ -10,11 +10,10 @@ function initializeFirebase() {
   if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.applicationDefault(),
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      databaseURL: `https://${process.env.DATABASE_NAME}.firebaseio.com`
+      projectId: process.env.FIREBASE_PROJECT_ID
     });
   }
-  db = admin.app().firestore();
+  db = admin.app().firestore(process.env.DATABASE_NAME);
 }
 
 /**
