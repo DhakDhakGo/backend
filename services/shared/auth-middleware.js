@@ -12,8 +12,9 @@ function initializeFirebase() {
       credential: admin.credential.applicationDefault(),
       projectId: process.env.FIREBASE_PROJECT_ID
     });
+    admin.app().firestore().settings({ databaseId: process.env.DATABASE_NAME });
   }
-  db = admin.app().firestore(process.env.DATABASE_NAME);
+  db = admin.app().firestore();
 }
 
 /**
