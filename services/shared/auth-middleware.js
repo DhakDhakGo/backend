@@ -25,7 +25,7 @@ function initializeFirebase() {
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   // If running locally or in an environment without API Gateway, use Authorization header
-  if (authHeader) {
+  if (authHeader && process.env.IS_AUTHENTICATED_VIA_AUTH_GATEWAY !== 'true') {
     try {
       const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
       if (!token) {
@@ -46,7 +46,7 @@ const authenticateToken = async (req, res, next) => {
         message: 'The provided token is invalid or expired'
       });
     }  
-  } else {
+  } else if (process.env.IS_AUTHENTICATED_VIA_AUTH_GATEWAY === 'true') {
     // When deployed behind API Gateway, user info is passed in a custom header (base64 encoded JSON)
     const encodedUserInfo = req.headers['x-apigateway-api-userinfo'];
     if (encodedUserInfo) {
@@ -55,8 +55,15 @@ const authenticateToken = async (req, res, next) => {
         const decodedUserInfo = JSON.parse(
           Buffer.from(encodedUserInfo, 'base64').toString('utf-8')
         );
-        req.user = getUserInfo(decodedUserInfo);
-        next();
+        if (decodedUserInfo && decodedUserInfo.iss === 'https://securetoken.google.com/dhakdhakgo-472515') {
+          req.user = getUserInfo(decodedUserInfo);
+          next();
+        } else {
+          return res.status(400).json({
+            error: 'Bad Request',
+            message: 'Invalid issuer information in headers'
+          });
+        }
       } catch (error) {
         return res.status(400).json({
           error: 'Bad Request',
