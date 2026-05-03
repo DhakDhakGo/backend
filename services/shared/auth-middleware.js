@@ -10,10 +10,11 @@ function initializeFirebase() {
   if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.applicationDefault(),
-      projectId: process.env.FIREBASE_PROJECT_ID
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      databaseURL: `https://${process.env.DATABASE_NAME}.firebaseio.com`
     });
   }
-  db = admin.app().firestore('dhakdhakgo-firestore-db');
+  db = admin.app().firestore();
 }
 
 /**
