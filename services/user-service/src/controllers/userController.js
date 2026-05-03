@@ -129,15 +129,15 @@ const incrementCounter = async (req, res, next) => {
   try {
     // Extract data from request
     const { userId } = req.params;
-    const { counterType } = req.query;
+    const { postType } = req.body;
 
     // Call service layer
-    await userService.incrementCounter(userId, counterType);
+    await userService.incrementCounter(userId, postType);
 
     // Return response
     res.json({
       success: true,
-      message: `Counter ${counterType} incremented`
+      message: `Counter ${postType} incremented`
     });
   } catch (error) {
     next(error);
@@ -151,7 +151,7 @@ const decrementCounter = async (req, res, next) => {
   try {
     // Extract data from request
     const { userId } = req.params;
-    const { counterType } = req.query;
+    const { counterType } = req.body;
 
     // Call service layer
     await userService.decrementCounter(userId, counterType);

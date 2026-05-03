@@ -83,7 +83,7 @@ jobs:
             --min-instances 0 \
             --timeout 300 \
             --port 8080 \
-            --ingress internal
+            --ingress all
 
       - name: Show deployment URL
         run: |
