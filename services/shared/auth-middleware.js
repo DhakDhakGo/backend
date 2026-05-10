@@ -53,7 +53,7 @@ const authenticateUserToken = async (req, res, next) => {
   }  
 };
 
-export const extractUserInfoFromHeaders = (req, res, next) => {
+const extractUserInfoFromHeaders = (req, res, next) => {
   // When authenticated via API gateway or service to service authentication through GoogleAuth, user info is passed in headers
   const encodedUserInfo = req.headers['x-apigateway-api-userinfo'] || req.headers['x-user-info'];
   if (encodedUserInfo) {
