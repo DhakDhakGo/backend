@@ -83,7 +83,7 @@ jobs:
             --timeout 300 \
             --port 8080 \
             --ingress all \
-            --set-env-vars "IS_AUTHENTICATED_VIA_AUTH_GATEWAY=${{ env.IS_AUTHENTICATED_VIA_AUTH_GATEWAY }},FIREBASE_PROJECT_ID=${{ env.PROJECT_ID }},DATABASE_NAME=${{ env.FIRESTORE_DATABASE_NAME }}"
+            --set-env-vars "FIREBASE_PROJECT_ID=${{ env.PROJECT_ID }},DATABASE_NAME=${{ env.FIRESTORE_DATABASE_NAME }},USER_SERVICE_URL=${{vars.USER_SERVICE_URL}}"
 
       - name: Show deployment URL
         run: |
