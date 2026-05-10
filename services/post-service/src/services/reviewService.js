@@ -15,18 +15,12 @@ const { callUserService, ContextHolder } = require('@dhakdhakgo/shared');
 const createReview = async (authorId, reviewData) => {
   // Verify user exists
   let userProfile;
-  try {
-    const userInfoToken = ContextHolder.getInfoForKey('userInfoToken');
-    console.log(userInfoToken);
-    userProfile = await callUserService({
-      method: 'GET',
-      path: `/api/users/${authorId}`,
-      additionalHeaders: { 'X-User-Info': userInfoToken }
-    });
-  } catch (error) {
-    console.log(error);
-    throw new Error('User not found. Please register first.');
-  }
+  const userInfoToken = ContextHolder.getInfoForKey('userInfoToken');
+  userProfile = await callUserService({
+    method: 'GET',
+    path: `/api/users/${authorId}`,
+    additionalHeaders: { 'X-User-Info': userInfoToken }
+  });
 
   // Create review instance
   const review = new BikeReview({

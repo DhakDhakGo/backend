@@ -12,7 +12,7 @@ const errorHandler = (err, req, res, next) => {
   if (err.code === 5) {
     return res.status(404).json({
       success: false,
-      error: 'Not found',
+      error: 'user not found',
       message: err.message
     });
   }
