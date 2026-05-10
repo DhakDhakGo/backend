@@ -50,10 +50,6 @@ app.get('/', (req, res) => {
 // Routes
 app.use('/api/users', userRoutes);
 
-if (!isLocal) {
-  app.use(extractUserInfoErrorHandler);
-}
-
 // Error handling middleware
 app.use(errorHandler);
 
