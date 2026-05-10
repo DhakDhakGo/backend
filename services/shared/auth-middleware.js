@@ -1,7 +1,7 @@
 // Firebase Authentication Middleware
 // This middleware can be used across all microservices to authenticate requests
 
-import { ContextHolder } from './context';
+const { ContextHolder } = require('./context');
 
 const admin = require('firebase-admin');
 

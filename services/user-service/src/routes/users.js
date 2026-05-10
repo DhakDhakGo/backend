@@ -11,22 +11,27 @@ const {
   decrementCounter
 } = require('../controllers/userController');
 
-const { authenticateToken, isOwner } = require('@dhakdhakgo/shared');
+const { authenticateUserToken, isOwner, extractUserInfoFromHeaders } = require('@dhakdhakgo/shared');
+
+
+
+// In cloud ennvironment, user authentication is handled by API Gateway. In local environment, add user authentication midleware.
+const userAuthMiddleware = process.env.NODE_ENV === 'local' ? authenticateUserToken: extractUserInfoFromHeaders;
 
 // Public routes (require authentication)
-router.post('/register', authenticateToken, registerUser);
-router.post('/login', authenticateToken, registerUser);
-router.get('/me', authenticateToken, getCurrentUser);
+router.post('/register', userAuthMiddleware, registerUser);
+//router.post('/login', userAuthMiddleware, registerUser);
+router.get('/me', userAuthMiddleware, getCurrentUser);
 
 // User profile routes
-router.get('/:userId', authenticateToken, getUserById);
-router.put('/:userId', authenticateToken, isOwner, updateUser);
+router.get('/:userId', userAuthMiddleware, getUserById);
+router.put('/:userId', userAuthMiddleware, isOwner, updateUser);
 
 // User stats
-router.get('/:userId/stats', authenticateToken, getUserStats);
+router.get('/:userId/stats', userAuthMiddleware, getUserStats);
 
 // Internal routes (for other services to update user stats)
-router.post('/:userId/increment', authenticateToken, incrementCounter);
-router.post('/:userId/decrement', authenticateToken, decrementCounter);
+router.post('/:userId/increment', userAuthMiddleware, incrementCounter);
+router.post('/:userId/decrement', userAuthMiddleware, decrementCounter);
 
 module.exports = router;
