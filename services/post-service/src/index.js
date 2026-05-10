@@ -19,7 +19,7 @@ ContextHolder.initialize();
 app.use(cors());
 app.use(express.json());
 
-app.use(ContextHolder.contextMiddleware);
+app.use(ContextHolder.contextMiddleware());
 
 // Health check endpoint
 app.get('/health', (req, res) => {
