@@ -1,6 +1,8 @@
 // Firebase Authentication Middleware
 // This middleware can be used across all microservices to authenticate requests
 
+import { ContextHolder } from './context';
+
 const admin = require('firebase-admin');
 
 let db;
@@ -23,7 +25,7 @@ function initializeFirebase() {
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
  */
-const authenticateToken = async (req, res, next) => {
+const authenticateUserToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   // If running locally use Authorization header
   try {
@@ -37,7 +39,10 @@ const authenticateToken = async (req, res, next) => {
 
     // Verify the Firebase ID token
     const decodedToken = await admin.auth().verifyIdToken(token);
-    req.user = getUserInfo(decodedToken);
+    ContextHolder.setToContext({
+      user: getUserInfo(decodedToken),
+      authorizationToken: authHeader,
+    });
     next();
   } catch (error) {
     console.error('Authentication error:', error);
@@ -48,7 +53,7 @@ const authenticateToken = async (req, res, next) => {
   }  
 };
 
-export const extractUserInfoFromHeaders = (req) => {
+export const extractUserInfoFromHeaders = (req, res, next) => {
   // When authenticated via API gateway or service to service authentication through GoogleAuth, user info is passed in headers
   const encodedUserInfo = req.headers['x-apigateway-api-userinfo'] || req.headers['x-user-info'];
   if (encodedUserInfo) {
@@ -57,15 +62,28 @@ export const extractUserInfoFromHeaders = (req) => {
         Buffer.from(encodedUserInfo, 'base64').toString('utf-8')
       );
       if (decodedUserInfo && decodedUserInfo.iss === `https://securetoken.google.com/${process.env.FIREBASE_PROJECT_ID}`) {
-        return decodedUserInfo;
+        ContextHolder.setToContext({
+          user: getUserInfo(decodedUserInfo),
+          userInfoToken: encodedUserInfo
+        });
+        next();
       } else {
-        throw new Error('Bad Request', { cause: 'ISSUER_NOT_RECOGNIZED' })
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Token issuer not recognized'
+        })
       }
     } catch (error) {
-      throw new Error('Bad Request', { cause: 'FAILED_TO_DECODE_USER_INFO' });
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Error in decoding user info from headers'
+      })
     }
   } else {
-    throw new Error('Bad Request', { cause: 'USER_INFO_NOT_FOUND_IN_HEADERS' });
+    return res.status(400).json({
+      error: 'Bad Request',
+      message: 'User information not found in headers'
+    });
   }
 };
 
@@ -130,10 +148,11 @@ const isOwner = (req, res, next) => {
 };
 
 module.exports = {
-  authenticateToken,
+  authenticateUserToken,
   //optionalAuth,
   getUserInfo,
   isOwner,
   initializeFirebase,
-  getFirestoreDbInstance: () => db
+  getFirestoreDbInstance: () => db,
+  extractUserInfoFromHeaders
 };
