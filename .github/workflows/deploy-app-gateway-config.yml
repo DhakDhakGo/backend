@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - check-api-gateway-token-validation
     paths:
       - 'infrastructure/terraform/openapi.yml'
       - '.github/workflows/deploy-app-gateway-config.yml'
@@ -31,8 +30,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: check-api-gateway-token-validation
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
