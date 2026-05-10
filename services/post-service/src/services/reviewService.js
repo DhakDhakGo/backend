@@ -17,12 +17,14 @@ const createReview = async (authorId, reviewData) => {
   let userProfile;
   try {
     const userInfoToken = ContextHolder.getInfoForKey('userInfoToken');
+    console.log(userInfoToken);
     userProfile = await callUserService({
       method: 'GET',
       path: `/api/users/${authorId}`,
-      additionalHeaders: { 'x-user-info': userInfoToken }
+      additionalHeaders: { 'X-User-Info': userInfoToken }
     });
   } catch (error) {
+    console.log(error);
     throw new Error('User not found. Please register first.');
   }
 
