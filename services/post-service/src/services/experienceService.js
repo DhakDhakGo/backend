@@ -17,7 +17,7 @@ const createExperience = async (authorId, experienceData) => {
     const userInfoToken = ContextHolder.getInfoForKey('userInfoToken');
     await callUserService({
       method: 'GET',
-      path: `api/users/${authorId}`,
+      path: `/api/users/${authorId}`,
       additionalHeaders: { 'x-user-info': userInfoToken }
     });
   } catch (error) {

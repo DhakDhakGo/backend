@@ -19,7 +19,7 @@ const createReview = async (authorId, reviewData) => {
     const userInfoToken = ContextHolder.getInfoForKey('userInfoToken');
     userProfile = await callUserService({
       method: 'GET',
-      path: `api/users/${authorId}`,
+      path: `/api/users/${authorId}`,
       additionalHeaders: { 'x-user-info': userInfoToken }
     });
   } catch (error) {
