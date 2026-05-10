@@ -37,7 +37,8 @@ const callService = async (service, options) => {
     url,
     method,
     data,
-    params: queryParams
+    params: queryParams,
+    headers: additionalHeaders
   });
   return response.data;
 };

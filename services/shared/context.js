@@ -1,7 +1,7 @@
 const { AsyncLocalStorage } = require('node:async_hooks');
 
 class AsyncLocalStorageHandler {
-  constructor(isLocal, options) {
+  constructor(options) {
     this.storage = new AsyncLocalStorage(options);
   }
   setToStore(obj) {
