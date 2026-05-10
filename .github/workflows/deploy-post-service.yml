@@ -78,7 +78,6 @@ jobs:
             --no-allow-unauthenticated \
             --memory 512Mi \
             --cpu 1 \
-            --scaling auto \
             --max-instances 3 \
             --min-instances 0 \
             --timeout 300 \

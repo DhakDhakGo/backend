@@ -3,8 +3,8 @@
 
 const BikeReview = require('../models/BikeReview');
 const reviewRepository = require('../repositories/reviewRepository');
-const { getUserProfile, getBikeInsights, incrementUserCounter } = require('./http-client');
-const { modifyUsersPostCounter } = require('@dhakdhakgo/shared');
+// const { getBikeInsights } = require('@dhakdhakgo/shared');
+const { callUserService, ContextHolder } = require('@dhakdhakgo/shared');
 
 /**
  * Create a new review
@@ -16,7 +16,12 @@ const createReview = async (authorId, reviewData) => {
   // Verify user exists
   let userProfile;
   try {
-    userProfile = await getUserProfile(authorId);
+    const userInfoToken = ContextHolder.getInfoForKey('userInfoToken');
+    userProfile = await callUserService({
+      method: 'GET',
+      path: `api/users/${authorId}`,
+      additionalHeaders: { 'x-user-info': userInfoToken }
+    });
   } catch (error) {
     throw new Error('User not found. Please register first.');
   }
@@ -33,25 +38,12 @@ const createReview = async (authorId, reviewData) => {
     throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
   }
 
-  // if (userProfile.userRole === 'admin') {
-  //   // Get AI insights if available
-  //   try {
-  //     const aiData = await getBikeInsights(review.bikeName);
-  //     if (aiData && aiData.data) {
-  //       review.setAIData(aiData.data);
-  //     }
-  //   } catch (error) {
-  //     console.warn('Failed to fetch AI insights:', error.message);
-  //     // Continue without AI data
-  //   }
-  // }
-
   // Save to database
   const savedReview = await reviewRepository.create(review);
 
   // Update user counter
   try {
-    await modifyUsersPostCounter(authorId, 'totalReviews', 'increment');
+    //await modifyUsersPostCounter(authorId, 'totalReviews', 'increment');
   } catch (error) {
     console.error('Failed to update user counter:', error);
     // Don't fail the request
@@ -62,8 +54,8 @@ const createReview = async (authorId, reviewData) => {
 
 const getAiDataForReview = async (review) => {
   try {
-    const aiData = await getBikeInsights(review.bikeName);
-    return aiData;
+    //const aiData = await getBikeInsights(review.bikeName);
+    //return aiData;
   } catch (error) {
     console.warn('Failed to fetch AI insights:', error.message);
     return null;
@@ -160,7 +152,12 @@ const setAIDataApprovedStatus = async (reviewId, authorId, isVerified) => {
   let userProfile;
   const review = await getReviewById(reviewId);
   try {
-    userProfile = await getUserProfile(authorId);
+    const userInfoToken = ContextHolder.getInfoForKey('userInfoToken');
+    ({ data: userProfile } = await callUserService({
+      method: 'GET',
+      path: `api/users/${authorId}`,
+      additionalHeaders: { 'x-user-info': userInfoToken }
+    }));
   } catch (error) {
     throw new Error('User not found. Please register first.');
   }
@@ -196,9 +193,9 @@ const deleteReview = async (reviewId, authorId) => {
 
   // Decrement user counter
   try {
-    await modifyUsersPostCounter(authorId, 'totalReviews', 'decrement');
+    //await modifyUsersPostCounter(authorId, 'totalReviews', 'decrement');
   } catch (error) {
-    
+    console.error('Failed to update user counter:', error);
   }
 };
 
