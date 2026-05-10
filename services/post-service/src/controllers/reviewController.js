@@ -2,7 +2,7 @@
 // HTTP request handling for bike reviews
 
 const reviewService = require('../services/reviewService');
-const { createSearchCriteria } = require('@dhakdhakgo/shared');
+const { createSearchCriteria, ContextHolder } = require('@dhakdhakgo/shared');
 
 /**
  * Create a new bike review
@@ -10,7 +10,8 @@ const { createSearchCriteria } = require('@dhakdhakgo/shared');
 const createReview = async (req, res, next) => {
   try {
     // Extract data from request
-    const authorId = req.user.uid;
+    const user = ContextHolder.getInfoForKey('user');
+    const authorId = user.uid;
     const reviewData = req.body;
 
     // Call service layer
@@ -117,7 +118,8 @@ const updateReview = async (req, res, next) => {
   try {
     // Extract data from request
     const { id } = req.params;
-    const authorId = req.user.uid;
+    const user = ContextHolder.getInfoForKey('user');
+    const authorId = user.uid;
     const updateData = req.body;
     
     // Call service layer
@@ -141,8 +143,9 @@ const deleteReview = async (req, res, next) => {
   try {
     // Extract data from request
     const { id } = req.params;
-    const authorId = req.user.uid;
-    
+    const user = ContextHolder.getInfoForKey('user');
+    const authorId = user.uid;
+
     // Call service layer
     await reviewService.deleteReview(id, authorId);
     

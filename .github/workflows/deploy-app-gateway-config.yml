@@ -56,6 +56,14 @@ jobs:
           python3 -c "import yaml; yaml.safe_load(open('infrastructure/terraform/openapi.yml'))" && \
           echo "✅ OpenAPI YAML syntax is valid"
 
+      - name: Prepare OpenAPI Spec
+        env:
+          project_id: ${{ env.PROJECT_ID }}
+        run: |
+          # This takes openapi.yml, replaces ${PROJECT_ID}, 
+          # and saves it to a temporary file
+          envsubst '${project_id}' < infrastructure/terraform/openapi.yml > infrastructure/terraform/openapi_final.yml
+
       - name: Create API Config with Updated OpenAPI
         id: create-config
         run: |
@@ -76,11 +84,13 @@ jobs:
           # Create the API config from OpenAPI spec
           gcloud api-gateway api-configs create "$CONFIG_ID" \
             --api=${{ env.API_ID }} \
-            --openapi-spec=infrastructure/terraform/openapi.yml \
+            --openapi-spec=infrastructure/terraform/openapi_final.yml \
             --backend-auth-service-account="$SA_EMAIL" \
             --project=${{ env.PROJECT_ID }}
           
           echo "✅ API config created successfully"
+
+          rm infrastructure/terraform/openapi_final.yml
 
       - name: Update Gateway to Use New Config
         run: |

@@ -1,7 +1,7 @@
 // Experience Controller
 // HTTP request handling for ownership experiences
 
-const { createSearchCriteria } = require('@dhakdhakgo/shared');
+const { createSearchCriteria, ContextHolder } = require('@dhakdhakgo/shared');
 const experienceService = require('../services/experienceService');
 
 /**
@@ -10,7 +10,8 @@ const experienceService = require('../services/experienceService');
 const createExperience = async (req, res, next) => {
   try {
     // Extract data from request
-    const authorId = req.user.uid;
+    const user = ContextHolder.getInfoForKey('user');
+    const authorId = user.uid;
     const experienceData = req.body;
 
     // Call service layer
@@ -123,7 +124,8 @@ const updateExperience = async (req, res, next) => {
   try {
     // Extract data from request
     const { id } = req.params;
-    const authorId = req.user.uid;
+    const user = ContextHolder.getInfoForKey('user');
+    const authorId = user.uid;
     const updateData = req.body;
     
     // Call service layer
@@ -147,7 +149,8 @@ const deleteExperience = async (req, res, next) => {
   try {
     // Extract data from request
     const { id } = req.params;
-    const authorId = req.user.uid;
+    const user = ContextHolder.getInfoForKey('user');
+    const authorId = user.uid;
     
     // Call service layer
     await experienceService.deleteExperience(id, authorId);

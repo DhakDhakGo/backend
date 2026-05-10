@@ -3,6 +3,7 @@
 
 const { createQueryBasedOnCriteria, getFirestoreDbInstance: getFirestore } = require('@dhakdhakgo/shared');
 const OwnershipExperience = require('../models/OwnershipExperience');
+const { collection, getDocs } = require('@firebase/firestore');
 const admin = require('firebase-admin');
 
 /**

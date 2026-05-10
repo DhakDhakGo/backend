@@ -1,17 +1,20 @@
 const userService = require('../services/userService');
+const { ContextHolder } = require('@dhakdhakgo/shared');
 
 /**
  * Register or get user profile
  * Creates user if doesn't exist, returns existing user otherwise
  */
 const registerUser = async (req, res, next) => {
+  const userFromContext = ContextHolder.getInfoForKey('user');
+  const { email, name, picture } = req.body;
   try {
     // Extract Firebase user data from authenticated request
     const firebaseUser = {
-      uid: req.user.uid,
-      email: req.user.email,
-      name: req.user.name,
-      picture: req.user.picture
+      uid: userFromContext.uid,
+      email,
+      name,
+      picture
     };
 
     // Call service layer
@@ -37,7 +40,8 @@ const registerUser = async (req, res, next) => {
 const getCurrentUser = async (req, res, next) => {
   try {
     // Extract user ID from authenticated request
-    const userId = req.user.uid;
+    const userFromContext = ContextHolder.getInfoForKey('user');
+    const userId = userFromContext.uid;
 
     // Call service layer
     const user = await userService.getUserById(userId);
@@ -83,9 +87,11 @@ const updateUser = async (req, res, next) => {
     const { displayName, photoURL } = req.body;
 
     // Prepare update data
-    const updateData = {};
-    if (displayName !== undefined) updateData.displayName = displayName;
-    if (photoURL !== undefined) updateData.photoURL = photoURL;
+    const updateData = {
+      displayName,
+      photoURL
+    };
+    
 
     // Call service layer
     const updatedUser = await userService.updateUserProfile(userId, updateData);
@@ -129,15 +135,15 @@ const incrementCounter = async (req, res, next) => {
   try {
     // Extract data from request
     const { userId } = req.params;
-    const { counterType } = req.query;
+    const { postType } = req.body;
 
     // Call service layer
-    await userService.incrementCounter(userId, counterType);
+    await userService.incrementCounter(userId, postType);
 
     // Return response
     res.json({
       success: true,
-      message: `Counter ${counterType} incremented`
+      message: `Counter ${postType} incremented`
     });
   } catch (error) {
     next(error);
@@ -151,7 +157,7 @@ const decrementCounter = async (req, res, next) => {
   try {
     // Extract data from request
     const { userId } = req.params;
-    const { counterType } = req.query;
+    const { counterType } = req.body;
 
     // Call service layer
     await userService.decrementCounter(userId, counterType);

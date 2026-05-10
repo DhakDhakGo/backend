@@ -18,41 +18,29 @@ const SERVICE_URLS = {
  * @param {string} method - HTTP method (GET, POST, PUT, DELETE)
  * @param {string} path - API path
  * @param {Object} data - Request body data
+ * @param {Object} queryParams - Query parameters
  * @param {Object} headers - Additional headers
  * @returns {Promise<Object>} Response data
  */
-const callService = async (service, method, path, data = null) => {
-  try {
-    const serviceUrl = SERVICE_URLS[service];
-    
-    if (!serviceUrl) {
-      throw new Error(`Unknown service: ${service}`);
-    }
-
-    const url = `${serviceUrl}${path}`;
-
-    const client = await auth.getIdTokenClient(url);
-    const response = await client.request({
-      url,
-      method,
-      data,
-    });
-    
-    return response.data;
-  } catch (error) {
-    console.error(`Service call failed: ${service} ${method} ${path}`, error.message);
-    
-    if (error.response) {
-      // Service responded with error
-      throw new Error(`${service} service error: ${error.response.data.error || error.response.data.message || 'Unknown error'}`);
-    } else if (error.request) {
-      // No response received
-      throw new Error(`${service} service unavailable`);
-    } else {
-      // Request setup error
-      throw new Error(`Failed to call ${service} service: ${error.message}`);
-    }
+const callService = async (service, options) => {
+  const { method, path, data, queryParams, retryCount, additionalHeaders } = options;
+  const serviceUrl = SERVICE_URLS[service];
+  
+  if (!serviceUrl) {
+    throw new Error(`Unknown service: ${service}`);
   }
+
+  const url = `${serviceUrl}${path}`;
+
+  const client = await auth.getIdTokenClient(url);
+  const response = await client.request({
+    url,
+    method,
+    data,
+    params: queryParams,
+    headers: additionalHeaders
+  });
+  return response.data;
 };
 
 /**
@@ -62,8 +50,8 @@ const callService = async (service, method, path, data = null) => {
  * @param {Object} data - Request data
  * @returns {Promise<Object>} Response data
  */
-const callUserService = async (method, path, data = null) => {
-  return callService('user', method, path, data);
+const callUserService = async (options) => {
+  return callService('user', options);
 };
 
 /**
@@ -73,8 +61,8 @@ const callUserService = async (method, path, data = null) => {
  * @param {Object} data - Request data
  * @returns {Promise<Object>} Response data
  */
-const callPostService = async (method, path, data = null) => {
-  return callService('post', method, path, data);
+const callPostService = async (options) => {
+  return callService('post', options);
 };
 
 /**
@@ -84,8 +72,8 @@ const callPostService = async (method, path, data = null) => {
  * @param {Object} data - Request data
  * @returns {Promise<Object>} Response data
  */
-const callAIService = async (method, path, data = null) => {
-  return callService('ai', method, path, data);
+const callAIService = async (options) => {
+  return callService('ai', options);
 };
 
 /**
@@ -95,8 +83,8 @@ const callAIService = async (method, path, data = null) => {
  * @param {Object} data - Request data
  * @returns {Promise<Object>} Response data
  */
-const callInteractionService = async (method, path, data = null) => {
-  return callService('interaction', method, path, data);
+const callInteractionService = async (options) => {
+  return callService('interaction', options);
 };
 
 /**
@@ -106,35 +94,25 @@ const callInteractionService = async (method, path, data = null) => {
  * @param {string} interactionType - Interaction type (likes or comments)
  * @param {boolean} incrementOrDecrement - True to increment, false to decrement
  */
-const incrementOrDecrementInteractionCounterOnPost = async (postId, postType, interactionType, incrementOrDecrement) => {
-  try {
-    const interaction = interactionType === 'likes' ? 'likes' : 'comments';
-    const action = incrementOrDecrement ? 'increment' : 'decrement';
-    if (interaction === 'comments') {
-      await callPostService('PATCH', `/api/${postType}/${postId}/${action}-comment`);
-    } else {
-      await callPostService('PATCH', `/api/${postType}/${postId}/${action}-like`);
-    }
-  } catch (error) {
-    console.warn('Failed to increment post counter:', error.message);
+const modifyInteractionCounterOnPost = async (postId, postType, interactionType, incrementOrDecrement) => {
+  const interaction = interactionType === 'likes' ? 'likes' : 'comments';
+  const action = incrementOrDecrement ? 'increment' : 'decrement';
+  if (interaction === 'comments') {
+    await callPostService({ method: 'PATCH', path: `/api/${postType}/${postId}/${action}-comment` });
+  } else {
+    await callPostService({ method: 'PATCH', path: `/api/${postType}/${postId}/${action}-like` });
   }
 };
 
 /**
  * Increment user counter
  * @param {string} userId - User ID
- * @param {string} counterType - Counter type
+ * @param {string} postType - Counter type
  * @param {boolean} incrementOrDecrement - True to increment, false to decrement
  */
-const incrementOrDecrementUserCounter = async (userId, counterType, incrementOrDecrement) => {
-  try {
-    const action = incrementOrDecrement ? 'increment' : 'decrement';
-    await callUserService('POST', `/api/users/${userId}/${action}`, {
-      counterType
-    });
-  } catch (error) {
-    console.warn('Failed to increment user counter:', error.message);
-  }
+const modifyUsersPostCounter = async (userId, postType, incrementOrDecrement) => {
+  const action = incrementOrDecrement ? 'increment' : 'decrement';
+  await callUserService({ method: 'POST', path: `/api/users/${userId}/${action}`, data: { postType } });
 };
 
 /**
@@ -143,7 +121,7 @@ const incrementOrDecrementUserCounter = async (userId, counterType, incrementOrD
  * @returns {Promise<Object>} User profile
  */
 const getUserProfile = async (userId) => {
-  const response = await callUserService('GET', `/api/users/${userId}`);
+  const response = await callUserService({ method: 'GET', path: GET_USER_PROFILE_URI(userId) });
   return response.data;
 };
 
@@ -173,7 +151,5 @@ module.exports = {
   callInteractionService,
   getUserProfile,
   verifyUserExists,
-  incrementOrDecrementInteractionCounterOnPost,
-  incrementOrDecrementUserCounter,
   SERVICE_URLS
 };

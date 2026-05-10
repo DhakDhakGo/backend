@@ -14,21 +14,23 @@ const {
   decrementReviewCommentCount
 } = require('../controllers/reviewController');
 
-const { authenticateToken } = require('@dhakdhakgo/shared');
+const { authenticateUserToken, extractUserInfoFromHeaders } = require('@dhakdhakgo/shared');
+
+const userAuthMiddleware = process.env.NODE_ENV === 'local' ? authenticateUserToken : extractUserInfoFromHeaders
 
 // Public routes
-router.get('/', getReviews);
-router.get('/:id', getReviewById);
-router.get('/user/:userId', getReviewsByAuthor);
+router.get('/', userAuthMiddleware, getReviews);
+router.get('/:id', userAuthMiddleware, getReviewById);
+router.get('/user/:userId', userAuthMiddleware, getReviewsByAuthor);
 
 // Protected routes (require authentication)
-router.post('/', authenticateToken, createReview);
-router.put('/:id', authenticateToken, updateReview);
-router.delete('/:id', authenticateToken, deleteReview);
+router.post('/', userAuthMiddleware, createReview);
+router.put('/:id', userAuthMiddleware, updateReview);
+router.delete('/:id', userAuthMiddleware, deleteReview);
 
-router.patch('/:id/increment-like', authenticateToken, incrementReviewLikeCount);
-router.patch('/:id/decrement-like', authenticateToken, decrementReviewLikeCount);
-router.patch('/:id/increment-comment', authenticateToken, incrementReviewCommentCount);
-router.patch('/:id/decrement-comment', authenticateToken, decrementReviewCommentCount);
+router.patch('/:id/increment-like', userAuthMiddleware, incrementReviewLikeCount);
+router.patch('/:id/decrement-like', userAuthMiddleware, decrementReviewLikeCount);
+router.patch('/:id/increment-comment', userAuthMiddleware, incrementReviewCommentCount);
+router.patch('/:id/decrement-comment', userAuthMiddleware, decrementReviewCommentCount);
 
 module.exports = router;

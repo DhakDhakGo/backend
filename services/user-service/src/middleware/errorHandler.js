@@ -12,7 +12,7 @@ const errorHandler = (err, req, res, next) => {
   if (err.code === 5) {
     return res.status(404).json({
       success: false,
-      error: 'Not found',
+      error: 'user not found',
       message: err.message
     });
   }
@@ -27,10 +27,10 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Default error response
-  res.status(err.status || 500).json({
+  return res.status(err.status || 500).json({
     success: false,
     error: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    stack: err.stack
   });
 };
 

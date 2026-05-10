@@ -47,7 +47,7 @@ const getUserById = async (userId) => {
   const user = await userRepository.findById(userId);
   
   if (!user) {
-    throw new Error('User not found');
+    throw new Error('User not found', { code: 5 });
   }
   
   return user;

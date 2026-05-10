@@ -20,6 +20,7 @@ env:
   REGION: ${{ vars.REGION }}
   WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
   DEPLOYMENT_SERVICE_ACCOUNT: ${{ vars.DEPLOYMENT_SERVICE_ACCOUNT }}
+  FIRESTORE_DATABASE_NAME: ${{ vars.FIRESTORE_DATABASE_NAME }}
 
 
 jobs:
@@ -77,7 +78,8 @@ jobs:
             --min-instances 0 \
             --timeout 300 \
             --port 8080 \
-            --ingress internal
+            --ingress all \
+            --set-env-vars "FIREBASE_PROJECT_ID=${{ env.PROJECT_ID }},DATABASE_NAME=${{ env.FIRESTORE_DATABASE_NAME }},USER_SERVICE_URL=${{vars.USER_SERVICE_URL}}"
 
       - name: Show deployment URL
         run: |

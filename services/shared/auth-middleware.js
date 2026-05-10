@@ -1,6 +1,8 @@
 // Firebase Authentication Middleware
 // This middleware can be used across all microservices to authenticate requests
 
+const { ContextHolder } = require('./context');
+
 const admin = require('firebase-admin');
 
 let db;
@@ -12,8 +14,9 @@ function initializeFirebase() {
       credential: admin.credential.applicationDefault(),
       projectId: process.env.FIREBASE_PROJECT_ID
     });
+    admin.app().firestore().settings({ databaseId: process.env.DATABASE_NAME });
   }
-  db = admin.app().firestore('dhakdhakgo-firestore-db');
+  db = admin.app().firestore();
 }
 
 /**
@@ -22,45 +25,65 @@ function initializeFirebase() {
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
  */
-const authenticateToken = async (req, res, next) => {
-  if (process.env.NODE_ENV === 'local') {
-    try {
-      const authHeader = req.headers.authorization;
-      const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-
-      if (!token) {
-        return res.status(401).json({ 
-          error: 'Access token required',
-          message: 'Please provide a valid Firebase ID token in the Authorization header'
-        });
-      }
-
-      // Verify the Firebase ID token
-      const decodedToken = await admin.auth().verifyIdToken(token);
-      req.user = decodedToken;
-      next();
-    } catch (error) {
-      console.error('Authentication error:', error);
-      return res.status(403).json({ 
-        error: 'Invalid token',
-        message: 'The provided token is invalid or expired'
+const authenticateUserToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  // If running locally use Authorization header
+  try {
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    if (!token) {
+      return res.status(401).json({ 
+        error: 'Access token required',
+        message: 'Please provide a valid Firebase ID token in the Authorization header'
       });
-    }  
-  } else {
-    const encodedUserInfo = req.headers['x-apigateway-api-userinfo'];
-    if (encodedUserInfo) {
-      // 1. Decode base64url to string, then parse to JSON
+    }
+
+    // Verify the Firebase ID token
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    ContextHolder.setToContext({
+      user: getUserInfo(decodedToken),
+      authorizationToken: authHeader,
+    });
+    next();
+  } catch (error) {
+    console.error('Authentication error:', error);
+    return res.status(403).json({ 
+      error: 'Invalid token',
+      message: 'The provided token is invalid or expired'
+    });
+  }  
+};
+
+const extractUserInfoFromHeaders = (req, res, next) => {
+  // When authenticated via API gateway or service to service authentication through GoogleAuth, user info is passed in headers
+  const encodedUserInfo = req.headers['x-apigateway-api-userinfo'] || req.headers['x-user-info'];
+  if (encodedUserInfo) {
+    try {
       const decodedUserInfo = JSON.parse(
         Buffer.from(encodedUserInfo, 'base64').toString('utf-8')
       );
-      req.user = decodedUserInfo; // Attach user info to request for downstream use
-      next();
-    } else {
-      return res.status(401).json({
-        error: 'Unauthorized',
-        message: 'User information is missing in the request headers'
-      });
+      if (decodedUserInfo && decodedUserInfo.iss === `https://securetoken.google.com/${process.env.FIREBASE_PROJECT_ID}`) {
+        ContextHolder.setToContext({
+          user: getUserInfo(decodedUserInfo),
+          userInfoToken: encodedUserInfo
+        });
+        next();
+      } else {
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: 'Token issuer not recognized'
+        })
+      }
+    } catch (error) {
+      return res.status(400).json({
+        error: 'Bad Request',
+        message: 'Error in decoding user info from headers'
+      })
     }
+  } else {
+    return res.status(400).json({
+      error: 'Bad Request',
+      message: 'User information not found in headers'
+    });
   }
 };
 
@@ -69,7 +92,7 @@ const authenticateToken = async (req, res, next) => {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
- */
+ 
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -87,6 +110,7 @@ const optionalAuth = async (req, res, next) => {
     next();
   }
 };
+*/
 
 /**
  * Get user information from decoded token
@@ -95,7 +119,7 @@ const optionalAuth = async (req, res, next) => {
  */
 const getUserInfo = (user) => {
   return {
-    uid: user.uid,
+    uid: user.uid ?? user.sub,
     email: user.email,
     emailVerified: user.email_verified,
     name: user.name,
@@ -124,10 +148,11 @@ const isOwner = (req, res, next) => {
 };
 
 module.exports = {
-  authenticateToken,
-  optionalAuth,
+  authenticateUserToken,
+  //optionalAuth,
   getUserInfo,
   isOwner,
   initializeFirebase,
-  getFirestoreDbInstance: () => db
+  getFirestoreDbInstance: () => db,
+  extractUserInfoFromHeaders
 };

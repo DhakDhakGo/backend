@@ -3,7 +3,7 @@
 
 const OwnershipExperience = require('../models/OwnershipExperience');
 const experienceRepository = require('../repositories/experienceRepository');
-const { getUserProfile, incrementOrDecrementUserCounter } = require('@dhakdhakgo/shared');
+const { callUserService, ContextHolder } = require('@dhakdhakgo/shared');
 
 /**
  * Create a new ownership experience
@@ -14,7 +14,12 @@ const { getUserProfile, incrementOrDecrementUserCounter } = require('@dhakdhakgo
 const createExperience = async (authorId, experienceData) => {
   // Verify user exists
   try {
-    await getUserProfile(authorId);
+    const userInfoToken = ContextHolder.getInfoForKey('userInfoToken');
+    await callUserService({
+      method: 'GET',
+      path: `/api/users/${authorId}`,
+      additionalHeaders: { 'x-user-info': userInfoToken }
+    });
   } catch (error) {
     throw new Error('User not found. Please register first.');
   }
@@ -36,7 +41,7 @@ const createExperience = async (authorId, experienceData) => {
 
   // Update user counter
   try {
-    await incrementOrDecrementUserCounter(authorId, 'totalExperiences');
+    //await incrementOrDecrementUserCounter(authorId, 'totalExperiences');
   } catch (error) {
     console.error('Failed to update user counter:', error);
     // Don't fail the request

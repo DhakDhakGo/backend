@@ -3,17 +3,23 @@ const cors = require('cors');
 
 const userRoutes = require('./routes/users');
 const { errorHandler } = require('./middleware/errorHandler');
-const { initializeFirebase } = require('@dhakdhakgo/shared');
+const { initializeFirebase, ContextHolder } = require('@dhakdhakgo/shared');
 
 const app = express();
 const PORT = process.env.PORT || 3004;
 
+const isLocal = process.env.NODE_ENV === 'local';
+
 // Initialize firebase
 initializeFirebase();
+
+ContextHolder.initialize();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+app.use(ContextHolder.contextMiddleware())
 
 // Health check endpoint
 app.get('/health', (req, res) => {
