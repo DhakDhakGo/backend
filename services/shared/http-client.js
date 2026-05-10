@@ -22,7 +22,8 @@ const SERVICE_URLS = {
  * @param {Object} headers - Additional headers
  * @returns {Promise<Object>} Response data
  */
-const callService = async (service, method, path, data = null, queryParams = null, withRetry = false) => {
+const callService = async (service, options) => {
+  const { method, path, data, queryParams, retryCount, additionalHeaders } = options;
   const serviceUrl = SERVICE_URLS[service];
   
   if (!serviceUrl) {
@@ -48,8 +49,8 @@ const callService = async (service, method, path, data = null, queryParams = nul
  * @param {Object} data - Request data
  * @returns {Promise<Object>} Response data
  */
-const callUserService = async (method, path, data = null, queryParams = null) => {
-  return callService('user', method, path, data, queryParams);
+const callUserService = async (options) => {
+  return callService('user', options);
 };
 
 /**
@@ -59,8 +60,8 @@ const callUserService = async (method, path, data = null, queryParams = null) =>
  * @param {Object} data - Request data
  * @returns {Promise<Object>} Response data
  */
-const callPostService = async (method, path, data = null, queryParams = null) => {
-  return callService('post', method, path, data, queryParams);
+const callPostService = async (options) => {
+  return callService('post', options);
 };
 
 /**
@@ -70,8 +71,8 @@ const callPostService = async (method, path, data = null, queryParams = null) =>
  * @param {Object} data - Request data
  * @returns {Promise<Object>} Response data
  */
-const callAIService = async (method, path, data = null, queryParams = null) => {
-  return callService('ai', method, path, data, queryParams);
+const callAIService = async (options) => {
+  return callService('ai', options);
 };
 
 /**
@@ -81,8 +82,8 @@ const callAIService = async (method, path, data = null, queryParams = null) => {
  * @param {Object} data - Request data
  * @returns {Promise<Object>} Response data
  */
-const callInteractionService = async (method, path, data = null, queryParams = null) => {
-  return callService('interaction', method, path, data, queryParams);
+const callInteractionService = async (options) => {
+  return callService('interaction', options);
 };
 
 /**
@@ -96,9 +97,9 @@ const modifyInteractionCounterOnPost = async (postId, postType, interactionType,
   const interaction = interactionType === 'likes' ? 'likes' : 'comments';
   const action = incrementOrDecrement ? 'increment' : 'decrement';
   if (interaction === 'comments') {
-    await callPostService('PATCH', `/api/${postType}/${postId}/${action}-comment`);
+    await callPostService({ method: 'PATCH', path: `/api/${postType}/${postId}/${action}-comment` });
   } else {
-    await callPostService('PATCH', `/api/${postType}/${postId}/${action}-like`);
+    await callPostService({ method: 'PATCH', path: `/api/${postType}/${postId}/${action}-like` });
   }
 };
 
@@ -110,7 +111,7 @@ const modifyInteractionCounterOnPost = async (postId, postType, interactionType,
  */
 const modifyUsersPostCounter = async (userId, postType, incrementOrDecrement) => {
   const action = incrementOrDecrement ? 'increment' : 'decrement';
-  await callUserService('POST', `/api/users/${userId}/${action}`, { postType }, null);
+  await callUserService({ method: 'POST', path: `/api/users/${userId}/${action}`, data: { postType } });
 };
 
 /**
@@ -119,7 +120,7 @@ const modifyUsersPostCounter = async (userId, postType, incrementOrDecrement) =>
  * @returns {Promise<Object>} User profile
  */
 const getUserProfile = async (userId) => {
-  const response = await callUserService('GET', `/api/users/${userId}`);
+  const response = await callUserService({ method: 'GET', path: GET_USER_PROFILE_URI(userId) });
   return response.data;
 };
 
@@ -149,7 +150,5 @@ module.exports = {
   callInteractionService,
   getUserProfile,
   verifyUserExists,
-  modifyInteractionCounterOnPost,
-  modifyUsersPostCounter,
   SERVICE_URLS
 };

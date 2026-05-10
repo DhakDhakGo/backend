@@ -1,6 +1,6 @@
 {
   "name": "@dhakdhakgo/shared",
-  "version": "0.0.10-alpha.5",
+  "version": "0.0.10-alpha.6",
   "description": "Shared utilities and middleware for DhakDhakGo services",
   "main": "index.js",
   "peerDependencies": {

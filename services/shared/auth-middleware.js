@@ -25,59 +25,47 @@ function initializeFirebase() {
  */
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-  // If running locally or in an environment without API Gateway, use Authorization header
-  if (authHeader && process.env.IS_AUTHENTICATED_VIA_AUTH_GATEWAY !== 'true') {
-    try {
-      const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-      if (!token) {
-        return res.status(401).json({ 
-          error: 'Access token required',
-          message: 'Please provide a valid Firebase ID token in the Authorization header'
-        });
-      }
-
-      // Verify the Firebase ID token
-      const decodedToken = await admin.auth().verifyIdToken(token);
-      req.user = getUserInfo(decodedToken);
-      next();
-    } catch (error) {
-      console.error('Authentication error:', error);
-      return res.status(403).json({ 
-        error: 'Invalid token',
-        message: 'The provided token is invalid or expired'
-      });
-    }  
-  } else if (process.env.IS_AUTHENTICATED_VIA_AUTH_GATEWAY === 'true') {
-    // When deployed behind API Gateway, user info is passed in a custom header (base64 encoded JSON)
-    const encodedUserInfo = req.headers['x-apigateway-api-userinfo'];
-    if (encodedUserInfo) {
-      try {
-        // 1. Decode base64url to string, then parse to JSON
-        const decodedUserInfo = JSON.parse(
-          Buffer.from(encodedUserInfo, 'base64').toString('utf-8')
-        );
-        if (decodedUserInfo && decodedUserInfo.iss === 'https://securetoken.google.com/dhakdhakgo-472515') {
-          req.user = getUserInfo(decodedUserInfo);
-          next();
-        } else {
-          return res.status(400).json({
-            error: 'Bad Request',
-            message: 'Invalid issuer information in headers'
-          });
-        }
-      } catch (error) {
-        return res.status(400).json({
-          error: 'Bad Request',
-          message: 'Invalid user information format in headers'
-        });
-      }
-    } else {
-      console.error('Authentication error: Missing user information in headers');
-      return res.status(401).json({
-        error: 'Unauthorized',
-        message: 'User information is missing in the request headers'
+  // If running locally use Authorization header
+  try {
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    if (!token) {
+      return res.status(401).json({ 
+        error: 'Access token required',
+        message: 'Please provide a valid Firebase ID token in the Authorization header'
       });
     }
+
+    // Verify the Firebase ID token
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    req.user = getUserInfo(decodedToken);
+    next();
+  } catch (error) {
+    console.error('Authentication error:', error);
+    return res.status(403).json({ 
+      error: 'Invalid token',
+      message: 'The provided token is invalid or expired'
+    });
+  }  
+};
+
+export const extractUserInfoFromHeaders = (req) => {
+  // When authenticated via API gateway or service to service authentication through GoogleAuth, user info is passed in headers
+  const encodedUserInfo = req.headers['x-apigateway-api-userinfo'] || req.headers['x-user-info'];
+  if (encodedUserInfo) {
+    try {
+      const decodedUserInfo = JSON.parse(
+        Buffer.from(encodedUserInfo, 'base64').toString('utf-8')
+      );
+      if (decodedUserInfo && decodedUserInfo.iss === `https://securetoken.google.com/${process.env.FIREBASE_PROJECT_ID}`) {
+        return decodedUserInfo;
+      } else {
+        throw new Error('Bad Request', { cause: 'ISSUER_NOT_RECOGNIZED' })
+      }
+    } catch (error) {
+      throw new Error('Bad Request', { cause: 'FAILED_TO_DECODE_USER_INFO' });
+    }
+  } else {
+    throw new Error('Bad Request', { cause: 'USER_INFO_NOT_FOUND_IN_HEADERS' });
   }
 };
 
