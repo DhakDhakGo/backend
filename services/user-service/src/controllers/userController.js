@@ -6,12 +6,12 @@ const { ContextHolder } = require('@dhakdhakgo/shared');
  * Creates user if doesn't exist, returns existing user otherwise
  */
 const registerUser = async (req, res, next) => {
-  const user = ContextHolder.getInfoForKey('user');
+  const userFromContext = ContextHolder.getInfoForKey('user');
   const { email, name, picture } = req.body;
   try {
     // Extract Firebase user data from authenticated request
     const firebaseUser = {
-      uid: user.uid,
+      uid: userFromContext.uid,
       email,
       name,
       picture
@@ -40,8 +40,8 @@ const registerUser = async (req, res, next) => {
 const getCurrentUser = async (req, res, next) => {
   try {
     // Extract user ID from authenticated request
-    const user = ContextHolder.getInfoForKey('user');
-    const userId = user.uid;
+    const userFromContext = ContextHolder.getInfoForKey('user');
+    const userId = userFromContext.uid;
 
     // Call service layer
     const user = await userService.getUserById(userId);
